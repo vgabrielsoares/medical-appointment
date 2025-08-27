@@ -1,0 +1,23 @@
+# Ignore padrões para Java, Node e IDEs
+
+# Java / Maven
+/target/
+/bin/
+/.mvn/
+*.class
+
+# Node
+/node_modules/
+/dist/
+
+# IDEs
+/.idea/
+/.vscode/
+*.iml
+
+# OS
+.DS_Store
+
+ma-development-plan.md
+
+.github
