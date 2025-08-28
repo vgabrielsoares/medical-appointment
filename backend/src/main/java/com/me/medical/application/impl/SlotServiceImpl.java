@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.me.medical.application.SlotOverlapException;
 import com.me.medical.application.SlotService;
 import com.me.medical.application.dto.SlotDto;
 import com.me.medical.infra.DoctorRepository;
@@ -35,13 +36,10 @@ public class SlotServiceImpl implements SlotService {
 
         var doctor = doctorRepository.findById(doctorId)
             .orElseThrow(() -> new IllegalArgumentException("doctor not found"));
-
-        // validação de overlap: checagem simples dos slots existentes daquele médico
-        var existing = slotRepository.findByDoctorId(doctorId);
-        for (JpaSlotEntity s : existing) {
-            if (overlaps(dto.getStart(), dto.getEnd(), s.getStartTime(), s.getEndTime())) {
-                throw new IllegalStateException("slot overlaps with existing slot");
-            }
+        // validação de overlap: usar query que delega a lógica ao banco
+        var overlapping = slotRepository.findOverlappingSlots(doctorId, dto.getStart(), dto.getEnd());
+        if (!overlapping.isEmpty()) {
+            throw new SlotOverlapException("slot overlaps with existing slot");
         }
 
         var entity = new JpaSlotEntity();
@@ -76,13 +74,10 @@ public class SlotServiceImpl implements SlotService {
             throw new SecurityException("not the owner");
         }
 
-        // checa overlap com exclusão própria
-        var others = slotRepository.findByDoctorId(doctorId).stream()
-            .filter(s -> !s.getId().equals(slotId)).collect(Collectors.toList());
-        for (JpaSlotEntity s : others) {
-            if (overlaps(dto.getStart(), dto.getEnd(), s.getStartTime(), s.getEndTime())) {
-                throw new IllegalStateException("slot overlaps with existing slot");
-            }
+        // checa overlap com exclusão própria usando query parametrizada
+        var overlapping = slotRepository.findOverlappingSlotsExcludingId(doctorId, dto.getStart(), dto.getEnd(), slotId);
+        if (!overlapping.isEmpty()) {
+            throw new SlotOverlapException("slot overlaps with existing slot");
         }
 
         entity.setStartTime(dto.getStart());
