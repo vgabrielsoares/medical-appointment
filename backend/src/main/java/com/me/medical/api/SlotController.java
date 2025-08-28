@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.me.medical.application.SlotOverlapException;
 import com.me.medical.application.SlotService;
 import com.me.medical.application.dto.SlotDto;
 import com.me.medical.infra.DoctorRepository;
@@ -53,8 +54,12 @@ public class SlotController {
     @PostMapping
     public ResponseEntity<?> create(@PathVariable UUID doctorId, @RequestBody SlotDto dto, Authentication auth) {
         requireDoctorAndOwner(auth, doctorId);
-        var created = slotService.createSlot(doctorId, dto);
-        return ResponseEntity.status(201).body(created);
+        try {
+            var created = slotService.createSlot(doctorId, dto);
+            return ResponseEntity.status(201).body(created);
+        } catch (SlotOverlapException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
     }
 
     @GetMapping
@@ -67,8 +72,12 @@ public class SlotController {
     @PutMapping("/{slotId}")
     public ResponseEntity<?> update(@PathVariable UUID doctorId, @PathVariable UUID slotId, @RequestBody SlotDto dto, Authentication auth) {
         requireDoctorAndOwner(auth, doctorId);
-        var updated = slotService.updateSlot(doctorId, slotId, dto);
-        return ResponseEntity.ok(updated);
+        try {
+            var updated = slotService.updateSlot(doctorId, slotId, dto);
+            return ResponseEntity.ok(updated);
+        } catch (SlotOverlapException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
     }
 
     @DeleteMapping("/{slotId}")
