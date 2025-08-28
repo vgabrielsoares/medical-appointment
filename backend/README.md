@@ -1,9 +1,63 @@
 # Backend (Spring Boot)
 
-- `pom.xml` — dependências Spring Boot + Flyway
-- `src/main/java/com/me/medical/MedicalAppointmentApplication.java` — classe principal
-- `src/main/resources/application.yml` — configuração usando variáveis de ambiente
-- `src/main/resources/db/migration/V1__init_schema.sql` — migration inicial (roles, users)
+Principais artefatos
+
+- `pom.xml` — dependências e plugins (Spring Boot, Flyway, PostgreSQL, etc.)
+- `src/main/java/com/me/medical/MedicalAppointmentApplication.java` — classe principal Spring Boot
+- `src/main/resources/application.yml` — configurações (DB, Flyway, JWT, profiles)
+- `src/main/resources/db/migration/` — migrations Flyway (scripts SQL ordenados por versão)
+
+## Estrutura de pastas (visão geral)
+
+- `domain/` — entidades, value objects e regras de domínio puras (sem dependência em Spring)
+  - Ex.: `User`, `Doctor`, `Patient`, `Slot`, `Appointment`.
+- `application/` (ou `usecase/`) — casos de uso / services que orquestram regras de negócio
+  e definem portas (interfaces) usadas pela infra. Aqui ficam DTOs e contratos de entrada/saída.
+- `infra/` — implementações das portas/portas de saída (ex.: JPA repositories, mappers,
+  entidades JPA). Interações com o banco e clients externos ficam aqui.
+- `api/` (ou `adapter/api/`) — controllers REST, DTOs de transporte (request/response) e
+  mapeamento para os casos de uso. Controllers apenas convertem e delegam para `application`.
+- `config/` — configurações do Spring (SecurityConfig, Beans, JWT filter, Cors, etc.)
+
+Exemplo de caminho de classes
+
+- `com.me.medical.domain` — classes de domínio
+- `com.me.medical.application` — services/usecases e DTOs
+- `com.me.medical.infra` — `JpaUserEntity`, `UserRepository` (implementação JPA)
+- `com.me.medical.api` — `HealthController`, controllers REST
+- `com.me.medical.config` — `SecurityConfig`, filtros JWT
+
+## Convenções e práticas adotadas
+
+- IDs: UUID v4 para todas as entidades públicas.
+- Timezones: UTC no backend; o frontend converte conforme necessidade.
+- Migrations: Flyway com scripts em `src/main/resources/db/migration`.
+- Autenticação: JWT simplificado (seed users, sem refresh token). Roles: `ROLE_DOCTOR`, `ROLE_PATIENT`.
+- Tratamento de erros: responses JSON simples { "message": "..." } e status HTTP semântico.
+- Concorrência/atomicidade: regras críticas (ex.: reservar slot) devem usar transação e
+  SELECT FOR UPDATE ou constraints únicas no banco (unique on `slot_id` em appointments).
+
+## Como compilar e executar (rápido)
+
+1. Ajuste variáveis de ambiente (ou use `application.yml`):
+   - `SPRING_DATASOURCE_URL` — jdbc:postgresql://host:5432/dbname
+   - `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD`
+   - `JWT_SECRET` — segredo para assinar tokens (dev-only ok)
+2. Build:
+
+   mvn -U clean package -DskipTests
+
+3. Executar (após configurar DB e variáveis):
+
+   java -jar target/medical-backend-0.0.1-SNAPSHOT.jar
+
+## Referências rápidas
+
+- Migrations: `src/main/resources/db/migration/`
+- Aplicação principal: `src/main/java/com/me/medical/MedicalAppointmentApplication.java`
+- Security: `src/main/java/com/me/medical/config/SecurityConfig.java`
+- Exemplo infra: `src/main/java/com/me/medical/infra/JpaUserEntity.java`
+- Repositório: `src/main/java/com/me/medical/infra/UserRepository.java`
 
 ## Como rodar o backend (modo rápido)
 
