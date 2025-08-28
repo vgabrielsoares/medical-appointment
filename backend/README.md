@@ -75,6 +75,23 @@ cd backend; mvn clean package; java -jar target/medical-backend-0.0.1-SNAPSHOT.j
 
 A configuração em `application.yml` usa variáveis de ambiente para a conexão com o banco (POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD). Flyway está habilitado e aplicará as migrations na inicialização.
 
+### Opção rápida: script helper (dev)
+
+Há um script helper `backend/run.sh` que simplifica o comando de execução em desenvolvimento. Ele possui valores padrão e permite sobrescrever via variáveis de ambiente, encapsulando o comando `mvn spring-boot:run`.
+
+Exemplos:
+
+```bash
+# rodar com padrões (gera JWT_SECRET temporário para dev se não existir)
+./backend/run.sh
+
+# sobrescrever porta ou senha do banco
+SERVER_PORT=8081 POSTGRES_PASSWORD=postgres ./backend/run.sh
+
+# usar um JWT_SECRET customizado
+JWT_SECRET=my-local-secret ./backend/run.sh
+```
+
 ## Como rodar sem Docker (PostgreSQL local)
 
 Se preferir usar um PostgreSQL instalado localmente (sem Docker), siga estes passos básicos:
