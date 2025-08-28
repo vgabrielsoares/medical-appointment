@@ -1,11 +1,14 @@
 package com.me.medical.infra;
 
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -22,6 +25,10 @@ public class JpaUserEntity {
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private JpaRoleEntity role;
+
     public JpaUserEntity() {}
 
     public UUID getId() { return id; }
@@ -32,4 +39,7 @@ public class JpaUserEntity {
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+
+    public JpaRoleEntity getRole() { return role; }
+    public void setRole(JpaRoleEntity role) { this.role = role; }
 }
