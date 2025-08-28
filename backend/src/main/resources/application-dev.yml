@@ -18,5 +18,5 @@ server:
   port: ${SERVER_PORT:8080}
 
 jwt:
-  secret: ${JWT_SECRET:3f2b1c9e7a6d5c4b3a2918076f5e4d3c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4}
+  secret: ${JWT_SECRET}
   expiration-ms: 3600000
