@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --max-width: 1024px;
+}
+
+/* container utilitário centralizado */
+.app-container {
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* componente card simples usado em várias páginas */
+.card {
+  @apply bg-white shadow-sm rounded-md p-4;
+}

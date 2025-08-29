@@ -1,5 +1,11 @@
 # Frontend (Vue 3 + TypeScript)
 
-- Vite + Vue 3 + TypeScript scaffold
-- Pinia, Vue Router, Tailwind CSS
-- src/components, src/pages, src/services
+- Scaffold básico com Vite + Vue 3 + TypeScript
+- Pinia e Vue Router (estado e rotas)
+- Estrutura: `src/components`, `src/pages`, `src/services`
+
+Como executar (frontend):
+
+1. cd frontend
+2. npm install
+3. npm run dev
