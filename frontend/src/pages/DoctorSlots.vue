@@ -43,6 +43,7 @@ import {
   updateDoctorSlot,
   deleteDoctorSlot,
 } from "../services/slots";
+import { getMyDoctor } from "../services/doctors";
 
 export default defineComponent({
   name: "DoctorSlots",
@@ -57,14 +58,16 @@ export default defineComponent({
     const load = async () => {
       error.value = "";
       try {
-        const doctorId = auth.user?.id;
         // somente médicos podem acessar esta página
         if (!auth.user || auth.user.role !== "ROLE_DOCTOR") {
           router.replace({ name: "login" });
           return;
         }
-        if (!doctorId) throw new Error("ID do médico não encontrado.");
-        const res = await listDoctorSlots(doctorId);
+        // obtemos o doctorId real vinculado ao usuário autenticado
+        const doctor = await getMyDoctor();
+        if (!doctor || !doctor.id)
+          throw new Error("ID do médico não encontrado.");
+        const res = await listDoctorSlots(doctor.id);
         slots.value = res;
       } catch (e: any) {
         error.value =
@@ -77,9 +80,10 @@ export default defineComponent({
     const createSlot = async (payload: any) => {
       error.value = "";
       try {
-        const doctorId = auth.user?.id;
-        if (!doctorId) throw new Error("ID do médico não encontrado.");
-        const created = await createDoctorSlot(doctorId, payload);
+        const doctor = await getMyDoctor();
+        if (!doctor || !doctor.id)
+          throw new Error("ID do médico não encontrado.");
+        const created = await createDoctorSlot(doctor.id, payload);
         slots.value.unshift(created);
       } catch (e: any) {
         error.value =
@@ -98,9 +102,9 @@ export default defineComponent({
       if (!editing.value) return;
       error.value = "";
       try {
-        const doctorId = auth.user?.id;
+        const doctor = await getMyDoctor();
         const updated = await updateDoctorSlot(
-          doctorId!,
+          doctor!.id,
           editing.value.id,
           payload
         );
@@ -120,8 +124,8 @@ export default defineComponent({
       if (!confirm("Confirma exclusão deste horário?")) return;
       error.value = "";
       try {
-        const doctorId = auth.user?.id;
-        await deleteDoctorSlot(doctorId!, slot.id);
+        const doctor = await getMyDoctor();
+        await deleteDoctorSlot(doctor!.id, slot.id);
         slots.value = slots.value.filter((s: any) => s.id !== slot.id);
       } catch (e: any) {
         error.value =
