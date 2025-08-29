@@ -2,6 +2,7 @@ package com.me.medical.api;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,8 @@ public class SlotController {
     private final SlotService slotService;
 
     private final DoctorRepository doctorRepository;
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SlotController.class);
 
     public SlotController(SlotService slotService, DoctorRepository doctorRepository) {
         this.slotService = slotService;
@@ -65,8 +68,24 @@ public class SlotController {
     @GetMapping
     public ResponseEntity<List<SlotDto>> list(@PathVariable UUID doctorId, Authentication auth) {
         // listagem dos slots do médico é permitida por ele
-        requireDoctorAndOwner(auth, doctorId);
-        return ResponseEntity.ok(slotService.listSlots(doctorId));
+        // médicos donos veem todos os slots, pacientes e público veem somente slots disponíveis
+        if (isDoctor(auth)) {
+            var userId = authUserId(auth);
+            if (userId != null) {
+                var doctor = doctorRepository.findById(doctorId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "doctor not found"));
+                var ownerUser = doctor.getUser();
+                if (ownerUser != null && ownerUser.getId().equals(userId)) {
+                    return ResponseEntity.ok(slotService.listSlots(doctorId));
+                }
+            }
+        }
+
+        var all = slotService.listSlots(doctorId);
+        var available = all.stream()
+            .filter(s -> s.getStatus() != null && "available".equalsIgnoreCase(s.getStatus()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(available);
     }
 
     @PutMapping("/{slotId}")
@@ -97,6 +116,9 @@ public class SlotController {
 
         var ownerUser = doctor.getUser();
         if (ownerUser == null || !ownerUser.getId().equals(userId)) {
+            // logar detalhes do motivo para facilitar debugging
+            log.debug("requireDoctorAndOwner failed: authUserId={} doctorId={} ownerUserId={} ownerUserIsNull={}",
+                userId, doctorId, ownerUser != null ? ownerUser.getId() : null, ownerUser == null);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not owner");
         }
     }
