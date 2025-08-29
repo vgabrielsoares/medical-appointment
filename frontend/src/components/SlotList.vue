@@ -14,18 +14,30 @@
           <div class="text-xs text-gray-500">Status: {{ s.status }}</div>
         </div>
         <div class="flex items-center gap-2">
-          <button
-            @click="$emit('edit', s)"
-            class="px-3 py-1 bg-blue-600 text-white rounded text-sm"
-          >
-            Editar
-          </button>
-          <button
-            @click="$emit('delete', s)"
-            class="px-3 py-1 bg-red-600 text-white rounded text-sm"
-          >
-            Excluir
-          </button>
+          <template v-if="patientMode">
+            <button
+              v-if="s.status === 'available'"
+              @click="$emit('book', s)"
+              class="px-3 py-1 bg-green-600 text-white rounded text-sm"
+            >
+              Agendar
+            </button>
+            <div v-else class="text-sm text-gray-500">Indisponível</div>
+          </template>
+          <template v-else>
+            <button
+              @click="$emit('edit', s)"
+              class="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+            >
+              Editar
+            </button>
+            <button
+              @click="$emit('delete', s)"
+              class="px-3 py-1 bg-red-600 text-white rounded text-sm"
+            >
+              Excluir
+            </button>
+          </template>
         </div>
       </li>
     </ul>
@@ -39,6 +51,8 @@ export default defineComponent({
   name: "SlotList",
   props: {
     slots: { type: Array as PropType<Array<any>>, default: () => [] },
+    // quando true, mostra ação de "Agendar" em slots disponíveis
+    patientMode: { type: Boolean as PropType<boolean>, default: false },
   },
   methods: {
     formatInterval(start: string, end: string) {
