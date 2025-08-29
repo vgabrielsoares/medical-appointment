@@ -31,7 +31,9 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Credenciais inválidas");
         }
 
-        String role = user.getRole() != null ? user.getRole().getName() : "ROLE_PATIENT";
+        // Normaliza a role para o formato esperado pelo Spring Security (ex: ROLE_PATIENT)
+        String roleRaw = user.getRole() != null ? user.getRole().getName() : "PATIENT";
+        String role = roleRaw.startsWith("ROLE_") ? roleRaw : ("ROLE_" + roleRaw);
         return tokenProvider.createToken(user.getId().toString(), role);
     }
 }

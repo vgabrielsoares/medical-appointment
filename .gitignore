@@ -10,6 +10,15 @@
 /node_modules/
 /dist/
 
+# Frontend (Vite) cache and envs
+/frontend/.vite/
+/frontend/.vite/deps/
+/frontend/dist/
+/frontend/node_modules/
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.*.local
+
 # IDEs
 /.idea/
 /.vscode/

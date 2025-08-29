@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.me.medical.application.SlotOverlapException;
 import com.me.medical.application.SlotService;
 import com.me.medical.application.dto.SlotDto;
@@ -23,6 +25,7 @@ import com.me.medical.infra.SlotRepository;
 public class SlotServiceImpl implements SlotService {
     private final SlotRepository slotRepository;
     private final DoctorRepository doctorRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public SlotServiceImpl(SlotRepository slotRepository, DoctorRepository doctorRepository) {
         this.slotRepository = slotRepository;
@@ -48,7 +51,11 @@ public class SlotServiceImpl implements SlotService {
         entity.setStartTime(dto.getStart());
         entity.setEndTime(dto.getEnd());
         entity.setStatus(dto.getStatus() == null ? "available" : dto.getStatus());
-        entity.setMetadata(dto.getMetadata());
+        try {
+            entity.setMetadata(dto.getMetadata() == null ? null : objectMapper.writeValueAsString(dto.getMetadata()));
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("invalid metadata JSON", e);
+        }
         entity.setCreatedAt(OffsetDateTime.now());
 
         var saved = slotRepository.save(entity);
@@ -83,7 +90,13 @@ public class SlotServiceImpl implements SlotService {
         entity.setStartTime(dto.getStart());
         entity.setEndTime(dto.getEnd());
         if (dto.getStatus() != null) entity.setStatus(dto.getStatus());
-        if (dto.getMetadata() != null) entity.setMetadata(dto.getMetadata());
+        if (dto.getMetadata() != null) {
+            try {
+                entity.setMetadata(objectMapper.writeValueAsString(dto.getMetadata()));
+            } catch (JsonProcessingException e) {
+                throw new IllegalArgumentException("invalid metadata JSON", e);
+            }
+        }
 
         var saved = slotRepository.save(entity);
         return toDto(saved);
@@ -115,7 +128,16 @@ public class SlotServiceImpl implements SlotService {
         d.setStart(e.getStartTime());
         d.setEnd(e.getEndTime());
         d.setStatus(e.getStatus());
-        d.setMetadata(e.getMetadata());
+        var meta = e.getMetadata();
+        if (meta == null) d.setMetadata(null);
+        else {
+            try {
+                d.setMetadata(objectMapper.readValue(meta, Object.class));
+            } catch (Exception ex) {
+                // fallback
+                d.setMetadata(meta);
+            }
+        }
         return d;
     }
 }

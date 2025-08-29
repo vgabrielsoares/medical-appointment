@@ -11,7 +11,7 @@ public class SlotDto {
     private OffsetDateTime start;
     private OffsetDateTime end;
     private String status;
-    private String metadata;
+    private Object metadata;
 
     public SlotDto() {}
 
@@ -27,6 +27,6 @@ public class SlotDto {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public String getMetadata() { return metadata; }
-    public void setMetadata(String metadata) { this.metadata = metadata; }
+    public Object getMetadata() { return metadata; }
+    public void setMetadata(Object metadata) { this.metadata = metadata; }
 }

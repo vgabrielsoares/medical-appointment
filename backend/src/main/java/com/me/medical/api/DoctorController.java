@@ -5,6 +5,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,5 +42,29 @@ public class DoctorController {
         }).collect(Collectors.toList());
 
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/doctors/me")
+    public ResponseEntity<DoctorDto> me(Authentication auth) {
+        if (auth == null) return ResponseEntity.status(401).build();
+        // somente médicos possuem doctor record
+        boolean isDoctor = false;
+        for (GrantedAuthority ga : auth.getAuthorities()) {
+            if ("ROLE_DOCTOR".equals(ga.getAuthority())) { isDoctor = true; break; }
+        }
+        if (!isDoctor) return ResponseEntity.status(403).build();
+
+        UUID userId;
+        try { userId = UUID.fromString((String) auth.getPrincipal()); }
+        catch (Exception e) { return ResponseEntity.status(401).build(); }
+
+        var list = doctorRepository.findByUserId(userId);
+        if (list.isEmpty()) return ResponseEntity.status(404).build();
+        var e = list.get(0);
+        var d = new DoctorDto();
+        d.id = e.getId();
+        d.name = e.getName();
+        d.specialty = e.getSpecialty();
+        return ResponseEntity.ok(d);
     }
 }
