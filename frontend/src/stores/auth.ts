@@ -56,11 +56,30 @@ export const useAuthStore = defineStore("auth", {
      */
     async login(email: string, password: string) {
       const res = await api.post("/auth/login", { email, password });
-      // contrato esperado: { token: string, user: { id, role } }
-      const { token, user } = res.data as { token: string; user: AuthUser };
+      // contrato esperado: { token: string, user?: { id, role } }
+      const token = res.data?.token as string | undefined;
+      if (!token) throw new Error("invalid auth response");
+
+      // salva o token primeiro
       this.setToken(token);
-      this.setUser(user);
-      return user;
+
+      // se o backend não devolveu o objeto `user`, extraímos do JWT (claim `sub` e `role`)
+      let user = res.data?.user as AuthUser | undefined;
+      if (!user) {
+        try {
+          const parts = token.split(".");
+          if (parts.length >= 2) {
+            const payload = JSON.parse(atob(parts[1]));
+            user = { id: payload.sub, role: payload.role } as AuthUser;
+          }
+        } catch (e) {
+          // falha ao decodificar token — manter user como null
+          user = undefined;
+        }
+      }
+
+      this.setUser(user || null);
+      return user || null;
     },
   },
 });

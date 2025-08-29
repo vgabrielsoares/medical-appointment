@@ -66,8 +66,29 @@ export default defineComponent({
       loading.value = true;
       try {
         const user = await auth.login(email.value, password.value);
-        // Redireciona por role
-        if (user.role === "ROLE_DOCTOR") {
+        // Redireciona por role, o backend pode retornar apenas { token }
+        // nesse caso tentamos obter o usuário da store ou do próprio token.
+        let role = user?.role;
+        if (!role) {
+          // checar store
+          const storeUser = auth.getUser;
+          role = storeUser ? storeUser.role : undefined;
+        }
+        if (!role) {
+          // tentar extrair do token
+          try {
+            const token = auth.getToken();
+            const parts = token.split(".");
+            if (parts.length >= 2) {
+              const payload = JSON.parse(atob(parts[1]));
+              role = payload?.role || null;
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        if (role === "ROLE_DOCTOR") {
           await router.push({ name: "doctor" });
         } else {
           await router.push({ name: "patient" });
