@@ -3,3 +3,10 @@
 /target/
 *.class
 *.log
+
+# IDEs
+/.idea/
+/.vscode/
+
+# Runtime
+/run.log
