@@ -1,33 +1,72 @@
 import { defineStore } from "pinia";
-import { registerAuthHandlers } from "../services/api";
+import api, { registerAuthHandlers } from "../services/api";
+
+/**
+ * Tipagem do usuário autenticado retornado pelo backend.
+ */
+export interface AuthUser {
+  id: string;
+  role: string; // 'ROLE_DOCTOR' | 'ROLE_PATIENT'
+}
 
 /**
  * Store de autenticação (Pinia)
- * Responsabilidade: gerenciar token JWT em memória/localStorage e expor helpers.
- * A store não manipula diretamente headers do axios, o `services/api` registra
- * interceptors que consultam o token via getToken.
+ * Responsabilidade:
+ * - armazenar token e dados do usuário autenticado
+ * - fornecer actions para login/logout
+ * - expor helper getToken usado pelos interceptors em `services/api`
+ *
+ * A store mantém o token em localStorage para persistência simples entre reloads.
  */
 export const useAuthStore = defineStore("auth", {
-  state: () => ({ token: (localStorage.getItem("ma_token") || "") as string }),
+  state: () => ({
+    token: (localStorage.getItem("ma_token") || "") as string,
+    user:
+      (JSON.parse(
+        localStorage.getItem("ma_user") || "null"
+      ) as AuthUser | null) || null,
+  }),
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+    getUser: (state) => state.user,
+  },
   actions: {
     setToken(t: string) {
       this.token = t;
       if (t) localStorage.setItem("ma_token", t);
       else localStorage.removeItem("ma_token");
     },
+    setUser(u: AuthUser | null) {
+      this.user = u;
+      if (u) localStorage.setItem("ma_user", JSON.stringify(u));
+      else localStorage.removeItem("ma_user");
+    },
     getToken() {
       return this.token || localStorage.getItem("ma_token") || "";
     },
     logout() {
       this.setToken("");
+      this.setUser(null);
+    },
+
+    /**
+     * Realiza login contra o backend e popula token + user na store.
+     * @returns AuthUser em caso de sucesso
+     * @throws erro do axios em caso de falha
+     */
+    async login(email: string, password: string) {
+      const res = await api.post("/auth/login", { email, password });
+      // contrato esperado: { token: string, user: { id, role } }
+      const { token, user } = res.data as { token: string; user: AuthUser };
+      this.setToken(token);
+      this.setUser(user);
+      return user;
     },
   },
 });
 
 // Registrar handlers de auth para o módulo api.
-// Fazemos aqui para manter a store como fonte da verdade do token,
-// e delegar o comportamento de 401 (logout/redirecionamento) para quem usar a app.
-// A store exportada não sabe como redirecionar, isso será registrado em `main.ts`.
+// Mantemos a responsabilidade do redirecionamento fora da store, o consumidor passa o onUnauthorized.
 export function attachDefaultAuthHandlers(onUnauthorized: () => void) {
   const store = useAuthStore();
   registerAuthHandlers({
