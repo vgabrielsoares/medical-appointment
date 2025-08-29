@@ -1,33 +1,44 @@
 <template>
   <div class="app-container">
     <div class="card">
-      <h2 class="text-xl font-semibold">Área do paciente</h2>
-      <p class="mt-2">
-        Aqui o paciente poderá ver médicos disponíveis e agendar horários.
-      </p>
+      <div class="flex flex-col md:flex-row md:items-start md:gap-6">
+        <div class="md:w-1/3">
+          <h2 class="text-lg font-semibold">Área do paciente</h2>
+          <p class="mt-2 text-sm text-gray-600">
+            Escolha um médico e veja horários disponíveis.
+          </p>
 
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="md:col-span-1">
-          <h3 class="font-medium mb-2">Médicos</h3>
-          <ul class="space-y-2">
-            <li
-              v-for="d in doctors"
-              :key="d.id"
-              @click="selectDoctor(d)"
-              :class="[
-                'p-3 rounded cursor-pointer',
-                selectedDoctor?.id === d.id
-                  ? 'bg-blue-50 border-l-4 border-blue-400'
-                  : 'bg-white',
-              ]"
-            >
-              <div class="font-medium">{{ d.name }}</div>
-              <div class="text-xs text-gray-500">{{ d.specialty || "—" }}</div>
-            </li>
-          </ul>
+          <div class="mt-4">
+            <h3 class="font-medium mb-2">Médicos</h3>
+            <ul class="space-y-2">
+              <li
+                v-for="d in doctors"
+                :key="d.id"
+                @click="selectDoctor(d)"
+                :class="[
+                  'flex items-center gap-3 p-2 rounded cursor-pointer',
+                  selectedDoctor?.id === d.id
+                    ? 'bg-blue-50 border-l-4 border-blue-400'
+                    : 'bg-white',
+                ]"
+              >
+                <div
+                  class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium text-gray-700"
+                >
+                  {{ (d.name || "?").slice(0, 1) }}
+                </div>
+                <div class="flex-1">
+                  <div class="font-medium text-sm">{{ d.name }}</div>
+                  <div class="text-xs text-gray-500">
+                    {{ d.specialty || "—" }}
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <div class="md:col-span-2">
+        <div class="md:flex-1 mt-4 md:mt-0">
           <h3 class="font-medium mb-2">Horários</h3>
           <div v-if="!selectedDoctor" class="text-sm text-gray-500">
             Selecione um médico à esquerda.
