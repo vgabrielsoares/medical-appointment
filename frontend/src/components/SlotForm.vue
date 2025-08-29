@@ -1,48 +1,45 @@
 <template>
-  <form
-    @submit.prevent="onSubmit"
-    class="space-y-3 bg-white p-4 rounded shadow-sm"
-  >
+  <form @submit.prevent="onSubmit" class="space-y-3">
     <div>
-      <label class="block text-sm font-medium text-gray-700">Início</label>
-      <input
-        v-model="start"
-        type="datetime-local"
-        class="mt-1 block w-full border rounded p-2"
-      />
+      <UiInput v-model="start" type="datetime-local" label="Início" />
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Fim</label>
-      <input
-        v-model="end"
-        type="datetime-local"
-        class="mt-1 block w-full border rounded p-2"
-      />
+      <UiInput v-model="end" type="datetime-local" label="Fim" />
     </div>
 
-    <div v-if="error" class="text-red-600 text-sm">{{ error }}</div>
+    <div
+      v-if="error"
+      class="text-red-600 text-sm"
+      role="alert"
+      aria-live="assertive"
+    >
+      {{ error }}
+    </div>
 
     <div class="flex items-center gap-2">
-      <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">
-        Salvar
-      </button>
-      <button
-        type="button"
-        @click="$emit('cancel')"
-        class="px-4 py-2 bg-gray-200 rounded"
+      <UiButton type="submit" variant="primary" ariaLabel="Salvar horário"
+        >Salvar</UiButton
       >
-        Cancelar
-      </button>
+      <UiButton
+        type="button"
+        variant="secondary"
+        ariaLabel="Cancelar"
+        @click="$emit('cancel')"
+        >Cancelar</UiButton
+      >
     </div>
   </form>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
+import { UiInput } from "./ui";
+import { UiButton } from "./ui";
 
 export default defineComponent({
   name: "SlotForm",
+  components: { UiInput, UiButton },
   props: {
     modelValue: { type: Object as PropType<any>, default: null },
   },
