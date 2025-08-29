@@ -1,45 +1,47 @@
 <template>
-  <div class="max-w-md mx-auto mt-12 p-6 bg-white rounded shadow">
-    <h2 class="text-2xl font-semibold mb-4">Entrar</h2>
+  <div class="app-container max-w-md mx-auto mt-12">
+    <div class="card">
+      <h2 class="text-2xl font-semibold mb-4">Entrar</h2>
 
-    <form @submit.prevent="onSubmit" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium">Email</label>
-        <input
-          v-model="email"
-          type="email"
-          required
-          class="mt-1 block w-full border rounded px-3 py-2"
-        />
-      </div>
+      <form @submit.prevent="onSubmit" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium">Email</label>
+          <input
+            v-model="email"
+            type="email"
+            required
+            class="mt-1 block w-full border rounded px-3 py-2"
+          />
+        </div>
 
-      <div>
-        <label class="block text-sm font-medium">Senha</label>
-        <input
-          v-model="password"
-          type="password"
-          required
-          class="mt-1 block w-full border rounded px-3 py-2"
-        />
-      </div>
+        <div>
+          <label class="block text-sm font-medium">Senha</label>
+          <input
+            v-model="password"
+            type="password"
+            required
+            class="mt-1 block w-full border rounded px-3 py-2"
+          />
+        </div>
 
-      <div class="flex items-center justify-between">
-        <button
-          :disabled="loading"
-          class="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          type="submit"
-        >
-          Entrar
-        </button>
-        <span v-if="loading" class="text-sm text-gray-500"
-          >Autenticando...</span
-        >
-      </div>
+        <div class="flex items-center justify-between">
+          <button
+            :disabled="loading"
+            class="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            type="submit"
+          >
+            Entrar
+          </button>
+          <span v-if="loading" class="text-sm text-gray-500"
+            >Autenticando...</span
+          >
+        </div>
 
-      <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
-      <p class="text-xs text-gray-500">Use as credenciais seed do backend.</p>
-    </form>
+        <p class="text-xs text-gray-500">Use as credenciais seed do backend.</p>
+      </form>
+    </div>
   </div>
 </template>
 

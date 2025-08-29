@@ -1,24 +1,28 @@
 <template>
-  <div class="p-6 space-y-4">
-    <h2 class="text-xl font-semibold">Meus horários</h2>
+  <div class="app-container space-y-4">
+    <h2 class="text-2xl font-semibold">Meus horários</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="md:col-span-2">
-        <SlotList :slots="slots" @edit="onEdit" @delete="onDelete" />
+        <div class="card">
+          <SlotList :slots="slots" @edit="onEdit" @delete="onDelete" />
+        </div>
       </div>
 
       <div>
-        <div v-if="editing">
-          <h3 class="font-medium mb-2">Editar horário</h3>
-          <SlotForm
-            :modelValue="editing"
-            @save="saveEdit"
-            @cancel="cancelEdit"
-          />
-        </div>
-        <div v-else>
-          <h3 class="font-medium mb-2">Criar novo horário</h3>
-          <SlotForm @save="createSlot" @cancel="noop" />
+        <div class="card">
+          <div v-if="editing">
+            <h3 class="font-medium mb-2">Editar horário</h3>
+            <SlotForm
+              :modelValue="editing"
+              @save="saveEdit"
+              @cancel="cancelEdit"
+            />
+          </div>
+          <div v-else>
+            <h3 class="font-medium mb-2">Criar novo horário</h3>
+            <SlotForm @save="createSlot" @cancel="noop" />
+          </div>
         </div>
       </div>
     </div>
