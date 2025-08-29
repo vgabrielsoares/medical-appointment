@@ -35,6 +35,7 @@ public class JpaSlotEntity {
     private String status; // available | booked | cancelled
 
     @Column(columnDefinition = "jsonb")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     private String metadata;
 
     @Column(name = "created_at")
