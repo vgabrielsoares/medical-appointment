@@ -32,7 +32,7 @@
           <div class="flex justify-center mb-6">
             <div class="relative">
               <div
-                class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/25 transform rotate-6 hover:rotate-12 transition-transform duration-300"
+                class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/25 transform hover:rotate-12 hover:scale-105 transition-transform duration-300"
               >
                 <CalendarDaysIcon
                   class="w-10 h-10 sm:w-12 sm:h-12 text-white"
