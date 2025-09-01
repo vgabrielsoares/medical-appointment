@@ -1,5 +1,7 @@
 package com.me.medical.application;
 
+import java.util.Map;
+
 public interface AuthService {
-    String login(String email, String password);
+    Map<String, Object> login(String email, String password);
 }

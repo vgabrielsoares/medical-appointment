@@ -35,14 +35,22 @@
             <span>Login</span>
           </router-link>
 
-          <router-link v-if="!isAuthenticated" to="/patient" class="nav-link">
+          <router-link
+            v-if="isAuthenticated && auth.isPatient"
+            to="/patient"
+            class="nav-link"
+          >
             <UserIcon class="w-4 h-4" />
-            <span>Paciente</span>
+            <span>Área do Paciente</span>
           </router-link>
 
-          <router-link v-if="!isAuthenticated" to="/doctor" class="nav-link">
+          <router-link
+            v-if="isAuthenticated && auth.isDoctor"
+            to="/doctor"
+            class="nav-link"
+          >
             <UserGroupIcon class="w-4 h-4" />
-            <span>Médico</span>
+            <span>Área do Médico</span>
           </router-link>
 
           <!-- Theme Toggle -->
@@ -169,7 +177,7 @@
           </router-link>
 
           <router-link
-            v-if="!isAuthenticated"
+            v-if="isAuthenticated && auth.isPatient"
             to="/patient"
             class="mobile-nav-link"
             @click="mobileOpen = false"
@@ -179,7 +187,7 @@
           </router-link>
 
           <router-link
-            v-if="!isAuthenticated"
+            v-if="isAuthenticated && auth.isDoctor"
             to="/doctor"
             class="mobile-nav-link"
             @click="mobileOpen = false"
@@ -289,7 +297,7 @@ export default defineComponent({
     const isAuthenticated = computed(() => auth.isAuthenticated);
 
     const displayName = computed(() => {
-      return auth.user?.id || "Usuário";
+      return auth.displayName;
     });
 
     const toggleTheme = () => {

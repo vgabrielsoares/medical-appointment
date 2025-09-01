@@ -11,16 +11,20 @@
     <footer class="mt-8 py-6 text-center text-sm text-gray-500">
       <div class="app-container">&copy; {{ year }} — Agendamento Médico</div>
     </footer>
+
+    <!-- Toasts globais -->
+    <UiToast />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import NavBar from "./NavBar.vue";
+import { UiToast } from "./ui";
 
 export default defineComponent({
   name: "Layout",
-  components: { NavBar },
+  components: { NavBar, UiToast },
   data() {
     return { year: new Date().getFullYear() };
   },

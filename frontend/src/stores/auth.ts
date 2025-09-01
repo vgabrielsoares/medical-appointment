@@ -7,6 +7,8 @@ import api, { registerAuthHandlers } from "../services/api";
 export interface AuthUser {
   id: string;
   role: string; // 'ROLE_DOCTOR' | 'ROLE_PATIENT'
+  name?: string; // nome do médico ou paciente
+  email?: string; // email do usuário
 }
 
 /**
@@ -29,6 +31,9 @@ export const useAuthStore = defineStore("auth", {
   getters: {
     isAuthenticated: (state) => !!state.token,
     getUser: (state) => state.user,
+    isDoctor: (state) => state.user?.role === "ROLE_DOCTOR",
+    isPatient: (state) => state.user?.role === "ROLE_PATIENT",
+    displayName: (state) => state.user?.name || state.user?.id || "Usuário",
   },
   actions: {
     setToken(t: string) {

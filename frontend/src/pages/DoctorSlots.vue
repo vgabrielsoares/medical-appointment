@@ -43,6 +43,7 @@ import {
   updateDoctorSlot,
   deleteDoctorSlot,
 } from "../services/slots";
+import { pushToast } from "../components/ui";
 import { getMyDoctor } from "../services/doctors";
 
 export default defineComponent({
@@ -86,8 +87,22 @@ export default defineComponent({
         const created = await createDoctorSlot(doctor.id, payload);
         slots.value.unshift(created);
       } catch (e: any) {
-        error.value =
-          e?.response?.data?.message || e.message || "Erro ao criar horário.";
+        // Tratamento específico para conflito 409 (horário já existente)
+        if (e?.response?.status === 409) {
+          const msg =
+            "Este horário conflita com um horário existente. Verifique a sua agenda e tente outro horário.";
+          error.value = msg;
+          pushToast("Conflito de horário", msg);
+          // Recarregar lista para refletir estado atual
+          try {
+            await load();
+          } catch (err) {
+            // ignorar falhas no reload para não sobrescrever a mensagem principal
+          }
+        } else {
+          error.value =
+            e?.response?.data?.message || e.message || "Erro ao criar horário.";
+        }
       }
     };
 
