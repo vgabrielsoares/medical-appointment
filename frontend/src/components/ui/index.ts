@@ -3,3 +3,6 @@ export { default as UiInput } from "./Input.vue";
 export { default as UiCard } from "./Card.vue";
 export { default as UiModal } from "./Modal.vue";
 export { default as UiToast, pushToast } from "./Toast.vue";
+export { default as UiAvatar } from "./Avatar.vue";
+export { default as UiBadge } from "./Badge.vue";
+export { default as UiLoading } from "./Loading.vue";
