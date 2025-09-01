@@ -137,7 +137,7 @@
               </p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <router-link
                 to="/login"
                 class="group flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
@@ -155,6 +155,27 @@
                   </div>
                   <div class="text-sm text-gray-500 dark:text-gray-400">
                     Acesse sua conta
+                  </div>
+                </div>
+              </router-link>
+
+              <router-link
+                to="/register"
+                class="group flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 hover:scale-105"
+              >
+                <div
+                  class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800 transition-colors"
+                >
+                  <UserPlusIcon
+                    class="w-5 h-5 text-emerald-600 dark:text-emerald-400"
+                  />
+                </div>
+                <div>
+                  <div class="font-medium text-gray-900 dark:text-white">
+                    Registrar
+                  </div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Criar conta
                   </div>
                 </div>
               </router-link>
@@ -219,6 +240,7 @@ import {
   ClockIcon,
   ShieldCheckIcon,
   DevicePhoneMobileIcon,
+  UserPlusIcon,
 } from "@heroicons/vue/24/solid";
 import { UiButton, UiCard } from "../components/ui";
 import { useAuthStore } from "../stores/auth";
@@ -235,6 +257,7 @@ export default defineComponent({
     ClockIcon,
     ShieldCheckIcon,
     DevicePhoneMobileIcon,
+    UserPlusIcon,
   },
   setup() {
     const router = useRouter();

@@ -30,7 +30,7 @@ export default defineComponent({
     hint: { type: String, default: "" },
     id: { type: String, default: "" },
     type: {
-      type: String as () => "text" | "email" | "password" | "datetime-local",
+      type: String as () => "text" | "email" | "password" | "datetime-local" | "date",
       default: "text",
     },
   },
@@ -44,7 +44,7 @@ export default defineComponent({
 
     const inputClass = computed(
       () =>
-        "w-full border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent text-gray-900 dark:text-gray-900"
+        "w-full border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent text-gray-900 bg-white dark:bg-white placeholder-gray-400"
     );
     function onInput(e: Event) {
       const target = e.target as HTMLInputElement | null;
