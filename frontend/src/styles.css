@@ -13,11 +13,32 @@
   padding-right: var(--size-container-padding);
 }
 
+@media (max-width: 640px) {
+  .app-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
 /* componente card simples usado em várias páginas */
 .card {
-  @apply rounded-md p-4;
+  border-radius: 0.75rem;
+  padding: 1rem;
   background-color: var(--color-card);
   box-shadow: var(--shadow-subtle);
+  transition: all var(--duration-medium) var(--ease-out);
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    padding: 2rem;
+  }
 }
 
 /* Motion tokens e utilitários para micro-interactions */
