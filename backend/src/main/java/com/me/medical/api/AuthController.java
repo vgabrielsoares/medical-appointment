@@ -24,7 +24,7 @@ public class AuthController {
         String email = body.get("email");
         String password = body.get("password");
 
-        var token = authService.login(email, password);
-        return ResponseEntity.ok(Map.of("token", token));
+        var response = authService.login(email, password);
+        return ResponseEntity.ok(response);
     }
 }
