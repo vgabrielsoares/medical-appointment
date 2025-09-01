@@ -32,6 +32,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/health", "/actuator/**", "/error").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/check-email").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/profile").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/users/profile").authenticated()
+                .requestMatchers("/api/appointments/**").authenticated()
+                .requestMatchers("/api/doctors/**").authenticated()
+                .requestMatchers("/api/patients/**").authenticated()
                 .anyRequest().authenticated()
             );
 
