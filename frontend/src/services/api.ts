@@ -8,6 +8,43 @@ const baseURL =
 // Instância axios centralizada para reutilização nas chamadas à API
 const api = axios.create({ baseURL });
 
+// Fallback: anexa token do localStorage nas requisições imediatamente após
+// criar a instância. Isso previne casos onde a aplicação é recarregada
+// e os interceptors de autenticação ainda não foram registrados via
+// `registerAuthHandlers`, o que causaria requisições sem header Authorization
+// e possivelmente 403/401.
+try {
+  const stored = localStorage.getItem("ma_token") || "";
+  if (stored) {
+    // define header default para a instância axios
+    (api.defaults.headers as any).common =
+      (api.defaults.headers as any).common || {};
+    (api.defaults.headers as any).common.Authorization = `Bearer ${stored}`;
+  }
+} catch (e) {
+  // se localStorage não estiver disponível ou lançar, ignorar silenciosamente
+}
+
+// Safety: um interceptor leve que garante que, se por algum motivo o header
+// Authorization estiver ausente numa requisição, tentamos anexar o token do
+// localStorage antes de enviar.
+api.interceptors.request.use(
+  (config) => {
+    try {
+      const headers: any = config.headers || {};
+      if (!headers.Authorization) {
+        const token = localStorage.getItem("ma_token") || "";
+        if (token) headers.Authorization = `Bearer ${token}`;
+        config.headers = headers;
+      }
+    } catch (e) {
+      // ignorar falhas de leitura de localStorage
+    }
+    return config;
+  },
+  (err) => Promise.reject(err)
+);
+
 // Expor função para registrar um handler de autenticação.
 // Isso evita dependência direta entre a store (Pinia) e este módulo,
 // permitindo testes mais fáceis e evitando ciclos de import.
