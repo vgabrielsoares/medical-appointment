@@ -75,7 +75,7 @@
               variant="primary"
               size="lg"
               :icon="UserIcon"
-              @click="$router.push('/patient')"
+              @click="handlePatientClick"
               class="w-full sm:w-auto"
             >
               Sou Paciente
@@ -85,7 +85,7 @@
               variant="secondary"
               size="lg"
               :icon="UserGroupIcon"
-              @click="$router.push('/doctor')"
+              @click="handleDoctorClick"
               class="w-full sm:w-auto"
             >
               Sou Médico
@@ -159,9 +159,9 @@
                 </div>
               </router-link>
 
-              <router-link
-                to="/patient"
-                class="group flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 hover:scale-105"
+              <div
+                @click="handlePatientClick"
+                class="group flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 hover:scale-105 cursor-pointer"
               >
                 <div
                   class="w-10 h-10 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-800 transition-colors"
@@ -178,11 +178,11 @@
                     Agendar consulta
                   </div>
                 </div>
-              </router-link>
+              </div>
 
-              <router-link
-                to="/doctor"
-                class="group flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200 hover:scale-105"
+              <div
+                @click="handleDoctorClick"
+                class="group flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200 hover:scale-105 cursor-pointer"
               >
                 <div
                   class="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-800 transition-colors"
@@ -199,7 +199,7 @@
                     Gerenciar agenda
                   </div>
                 </div>
-              </router-link>
+              </div>
             </div>
           </UiCard>
         </div>
@@ -210,6 +210,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
 import {
   CalendarDaysIcon,
   UserIcon,
@@ -220,6 +221,7 @@ import {
   DevicePhoneMobileIcon,
 } from "@heroicons/vue/24/solid";
 import { UiButton, UiCard } from "../components/ui";
+import { useAuthStore } from "../stores/auth";
 
 export default defineComponent({
   name: "Home",
@@ -235,6 +237,9 @@ export default defineComponent({
     DevicePhoneMobileIcon,
   },
   setup() {
+    const router = useRouter();
+    const auth = useAuthStore();
+
     const features = [
       {
         title: "Agendamento Fácil",
@@ -256,10 +261,38 @@ export default defineComponent({
       },
     ];
 
+    const handlePatientClick = () => {
+      if (auth.isAuthenticated) {
+        if (auth.isPatient) {
+          router.push("/patient");
+        } else {
+          // Se é médico tentando acessar área de paciente, redirecionar para área do médico
+          router.push("/doctor");
+        }
+      } else {
+        router.push("/login");
+      }
+    };
+
+    const handleDoctorClick = () => {
+      if (auth.isAuthenticated) {
+        if (auth.isDoctor) {
+          router.push("/doctor");
+        } else {
+          // Se é paciente tentando acessar área de médico, redirecionar para área do paciente
+          router.push("/patient");
+        }
+      } else {
+        router.push("/login");
+      }
+    };
+
     return {
       features,
       UserIcon,
       UserGroupIcon,
+      handlePatientClick,
+      handleDoctorClick,
     };
   },
 });
