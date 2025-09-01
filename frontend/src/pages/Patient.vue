@@ -245,7 +245,13 @@ import {
   ExclamationTriangleIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/solid";
-import { UiCard, UiAvatar, UiBadge, UiButton } from "../components/ui";
+import {
+  UiCard,
+  UiAvatar,
+  UiBadge,
+  UiButton,
+  pushToast,
+} from "../components/ui";
 
 export default defineComponent({
   name: "Patient",
@@ -318,8 +324,22 @@ export default defineComponent({
         document.body.appendChild(successDiv);
         setTimeout(() => document.body.removeChild(successDiv), 3000);
       } catch (e: any) {
-        error.value =
-          e?.response?.data?.message || e.message || "Erro ao agendar horário.";
+        if (e?.response?.status === 409) {
+          const msg =
+            "Este horário já foi reservado por outro paciente. Por favor, escolha outro horário disponível.";
+          error.value = msg;
+          // toast amigável
+          pushToast("Conflito de horário", msg);
+          // Recarregar os slots para mostrar o estado atualizado
+          if (selectedDoctor.value) {
+            await loadSlots(selectedDoctor.value.id);
+          }
+        } else {
+          error.value =
+            e?.response?.data?.message ||
+            e.message ||
+            "Erro ao agendar horário.";
+        }
       }
     };
 
