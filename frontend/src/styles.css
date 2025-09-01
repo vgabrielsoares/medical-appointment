@@ -1,21 +1,76 @@
+@import "./styles/tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --max-width: 1024px;
-}
-
-/* container utilitário centralizado */
+/* container utilitário centralizado usando token */
 .app-container {
-  max-width: var(--max-width);
+  max-width: var(--size-container-max);
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: var(--size-container-padding);
+  padding-right: var(--size-container-padding);
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* componente card simples usado em várias páginas */
 .card {
-  @apply bg-white shadow-sm rounded-md p-4;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background-color: var(--color-card);
+  box-shadow: var(--shadow-subtle);
+  transition: all var(--duration-medium) var(--ease-out);
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    padding: 2rem;
+  }
+}
+
+/* Motion tokens e utilitários para micro-interactions */
+:root {
+  --motion-fast: 180ms;
+  --motion-medium: 260ms;
+  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Transitions para lista de slots (entrada/saída) */
+.slot-enter-from,
+.slot-leave-to {
+  opacity: 0;
+  transform: translateY(6px) scale(0.995);
+}
+.slot-enter-to,
+.slot-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.slot-enter-active,
+.slot-leave-active {
+  transition: opacity var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot-enter-active,
+  .slot-leave-active,
+  .toast-enter-active,
+  .toast-leave-active,
+  .transition-transform {
+    transition: none !important;
+  }
 }

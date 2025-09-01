@@ -1,0 +1,127 @@
+/* Design tokens (css variables) usados pelo projeto
+   Seguem convenções simples e reutilizáveis. Mantê-los pequenos e bem nomeados.
+
+   - Variáveis de cor: --color-... (versões base e contrastantes)
+   - Tamanhos: --size-... (container e paddings)
+   - Sombras: --shadow-... (textual para reutilização em box-shadow)
+   - Tokens pensados para serem usados tanto em classes Tailwind (via theme colors)
+     quanto diretamente em componentes via var(--color-...).
+*/
+
+:root {
+  /* cores principais */
+  --color-primary: #0f172a; /* tom escuro para headers */
+  --color-primary-600: #0b1220;
+  --color-accent: #2563eb; /* azul vivo para ações primárias */
+  --color-muted: #6b7280; /* texto secundário */
+
+  /* fundo e superfícies */
+  --color-bg: #f8fafc;
+  --color-card: #ffffff;
+
+  /* semantic */
+  --color-success: #059669;
+  --color-danger: #dc2626;
+  --color-warning: #f59e0b;
+
+  /* espaçamentos e tamanhos */
+  --size-container-max: 1280px;
+  --size-container-padding: 1rem;
+
+  /* responsive */
+  --size-text-xs: 0.75rem;
+  --size-text-sm: 0.875rem;
+  --size-text-base: 1rem;
+  --size-text-lg: 1.125rem;
+  --size-text-xl: 1.25rem;
+
+  /* animations */
+  --duration-fast: 150ms;
+  --duration-medium: 300ms;
+  --duration-slow: 500ms;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* sombras (usar como "box-shadow: var(--shadow-subtle)") */
+  --shadow-subtle: 0 1px 2px rgba(15, 23, 42, 0.04),
+    0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+/* Dark mode: sobrescrever variáveis para modo escuro */
+.dark {
+  --color-primary: #e6eef8; /* mais claro para texto sobre escuro */
+  --color-primary-600: #dbe8fb;
+  --color-accent: #60a5fa;
+  --color-muted: #9ca3af;
+
+  --color-bg: #0b1020;
+  --color-card: #0f1724;
+
+  --shadow-subtle: 0 1px 2px rgba(2, 6, 23, 0.6), 0 1px 3px rgba(2, 6, 23, 0.5);
+}
+
+/* cor de texto padrão no modo escuro para elementos sem utilitário explícito */
+.dark,
+.dark body,
+.dark #app {
+  color: var(--color-primary) !important;
+}
+
+/*
+  Ao invés de mudar todos os componentes, aplicamos overrides de alta especificidade
+  mapeando essas classes para as variáveis de tema já definidas.
+  Usamos !important para garantir que a preferência do usuário (dark) prevaleça.
+*/
+.dark .bg-white {
+  background-color: var(--color-card) !important;
+}
+.dark .bg-gray-50 {
+  background-color: var(--color-bg) !important;
+}
+.dark .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+.dark .bg-gray-200 {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .text-gray-700 {
+  color: var(--color-primary) !important;
+}
+.dark .text-gray-600 {
+  color: var(--color-muted) !important;
+}
+.dark .text-gray-500 {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+.dark .text-gray-900 {
+  color: var(--color-primary) !important;
+}
+
+.dark .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: var(--color-card) !important;
+}
+.dark .hover\:bg-gray-100:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.dark .bg-blue-50 {
+  background-color: rgba(96, 165, 250, 0.08) !important;
+}
+
+.dark .card {
+  background-color: var(--color-card) !important;
+  box-shadow: var(--shadow-subtle) !important;
+}
+
+/* utility helpers (pequenas) */
+.u-text-muted {
+  color: var(--color-muted);
+}

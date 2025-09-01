@@ -8,8 +8,16 @@ import "./styles.css";
 // Ponto de entrada da aplicação frontend
 // Registra Pinia (store) e o Vue Router
 const app = createApp(App);
-app.use(createPinia());
+const pinia = createPinia();
+app.use(pinia);
 app.use(router);
+
+// Inicializa e aplica preferência de tema ANTES do mount para evitar flash
+import { useThemeStore } from "./stores/theme";
+// criar a store e inicializar o tema
+const themeStore = useThemeStore(pinia);
+themeStore.init();
+
 app.mount("#app");
 
 // registra handlers de autenticação que anexam token e tratam 401.
