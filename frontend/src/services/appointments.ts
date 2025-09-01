@@ -10,7 +10,7 @@ export async function createAppointment(payload: CreateAppointmentDTO) {
   return res.data;
 }
 
-export async function listPatientAppointments(patientId: string) {
-  const res = await api.get(`/patients/${patientId}/appointments`);
+export async function listMyAppointments() {
+  const res = await api.get(`/appointments/my`);
   return res.data;
 }
