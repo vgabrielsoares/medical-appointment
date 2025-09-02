@@ -367,7 +367,7 @@ export default defineComponent({
         isSaving.value = true;
 
         // TODO: Implementar chamada para API
-        await api.patch("/api/users/profile", profileForm.value);
+        await api.patch("/users/profile", profileForm.value);
 
         // Atualizar dados na store
         if (auth.user) {
@@ -403,7 +403,7 @@ export default defineComponent({
         isChangingPassword.value = true;
 
         // TODO: Implementar chamada para API
-        await api.put("/api/users/change-password", {
+        await api.put("/users/change-password", {
           currentPassword: passwordForm.value.currentPassword,
           newPassword: passwordForm.value.newPassword,
         });
@@ -428,7 +428,7 @@ export default defineComponent({
     const loadProfile = async () => {
       try {
         // TODO: Implementar chamada para API para carregar dados do perfil
-        // const response = await api.get('/api/users/profile');
+        // const response = await api.get('/users/profile');
         // profileForm.value = response.data;
 
         // Por enquanto, usar dados da store
