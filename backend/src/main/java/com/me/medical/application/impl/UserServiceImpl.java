@@ -37,6 +37,12 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
+    /**
+     * Retorna os dados do perfil para o usuário identificado pelo email.
+     * Agrega informações específicas dependendo da role (doctor/patient).
+     *
+     * @throws RuntimeException se o usuário não for encontrado
+     */
     public Map<String, Object> getProfile(String userEmail) {
         Optional<JpaUserEntity> userOpt = userRepository.findByEmail(userEmail);
         if (userOpt.isEmpty()) {
@@ -78,6 +84,14 @@ public class UserServiceImpl implements UserService {
     
     @Override
     @Transactional
+    /**
+     * Atualiza parcialmente os dados do perfil do usuário autenticado.
+     * Aceita chaves 'name', 'phone', 'specialty' (para doctor) e 'birthDate'.
+     *
+     * Retorna o perfil atualizado.
+     *
+     * @throws RuntimeException se o usuário não existir
+     */
     public Map<String, Object> updateProfile(String userEmail, Map<String, Object> profileData) {
         Optional<JpaUserEntity> userOpt = userRepository.findByEmail(userEmail);
         if (userOpt.isEmpty()) {
