@@ -1,8 +1,11 @@
 <template>
   <div class="flex flex-col">
-    <label v-if="label" :for="inputId" class="mb-1 text-sm text-gray-900">{{
-      label
-    }}</label>
+    <label
+      v-if="label"
+      :for="inputId"
+      class="mb-1 text-sm text-gray-900 dark:text-gray-100"
+      >{{ label }}</label
+    >
     <input
       :id="inputId"
       :type="type"
@@ -30,7 +33,12 @@ export default defineComponent({
     hint: { type: String, default: "" },
     id: { type: String, default: "" },
     type: {
-      type: String as () => "text" | "email" | "password" | "datetime-local" | "date",
+      type: String as () =>
+        | "text"
+        | "email"
+        | "password"
+        | "datetime-local"
+        | "date",
       default: "text",
     },
   },
@@ -44,7 +52,7 @@ export default defineComponent({
 
     const inputClass = computed(
       () =>
-        "w-full border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent text-gray-900 bg-white dark:bg-white placeholder-gray-400"
+        "w-full border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent text-gray-900 bg-white dark:bg-gray-700 dark:text-gray-100 placeholder-gray-400"
     );
     function onInput(e: Event) {
       const target = e.target as HTMLInputElement | null;
@@ -57,10 +65,13 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* Default: texto escuro em themes claros */
 input[type="datetime-local"] {
-  color: #0f172a !important; /* text-gray-900 */
+  color: #0f172a !important;
+  /* text-gray-900 */
 }
 
+/* Aplicar a pseudo-partes do datetime-local para herdarem a cor atual */
 input[type="datetime-local"]::-webkit-datetime-edit,
 input[type="datetime-local"]::-webkit-datetime-edit-text,
 input[type="datetime-local"]::-webkit-datetime-edit-field,
@@ -69,14 +80,25 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field,
 input[type="datetime-local"]::-webkit-datetime-edit-day-field,
 input[type="datetime-local"]::-webkit-datetime-edit-month-field,
 input[type="datetime-local"]::-webkit-datetime-edit-year-field {
-  color: #0f172a !important;
+  color: inherit !important;
 }
 
-/* Forçar também quando tema escuro estiver ativo */
+/* Dark mode: usar texto claro para boa legibilidade */
 .dark input[type="datetime-local"],
 .dark input[type="datetime-local"]::-webkit-datetime-edit,
 .dark input[type="datetime-local"]::-webkit-datetime-edit-text,
 .dark input[type="datetime-local"]::-webkit-datetime-edit-field {
-  color: #0f172a !important;
+  color: #f3f4f6 !important;
+  /* text-gray-100 */
+}
+
+/* Calendar picker icon (Chrome/WebKit) - ajustar contraste no dark mode */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  /* forçar ícone claro em dark mode */
+  filter: brightness(0) invert(1) !important;
 }
 </style>
