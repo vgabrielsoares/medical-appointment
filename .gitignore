@@ -1,0 +1,34 @@
+# Ignore padrões para Java, Node e IDEs
+
+# Java / Maven
+/target/
+/bin/
+/.mvn/
+*.class
+
+# Node
+/node_modules/
+/dist/
+
+# Frontend (Vite) cache and envs
+/frontend/.vite/
+/frontend/.vite/deps/
+/frontend/dist/
+/frontend/node_modules/
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.*.local
+
+# IDEs
+/.idea/
+/.vscode/
+*.iml
+
+# OS
+.DS_Store
+
+ma-development-plan.md
+
+.github
+
+run.log

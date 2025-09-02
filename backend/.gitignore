@@ -1,0 +1,14 @@
+# Backend Java gitignore
+
+/target/
+*.class
+*.log
+
+# IDEs
+/.idea/
+/.vscode/
+
+# Runtime
+/run.log
+
+.jwt_secret

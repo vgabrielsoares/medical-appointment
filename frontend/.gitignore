@@ -1,0 +1,15 @@
+# Frontend Node gitignore
+
+# Dependências e artefatos de build
+/node_modules/
+/dist/
+.vite/
+
+# Variáveis de ambiente locais
+.env
+.env.local
+.env.*.local
+
+# Cache/optimized deps do Vite
+.vite/deps/
+.vite/cache/
