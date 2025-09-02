@@ -14,11 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.me.medical.application.UserService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Controller REST responsável por gerenciar dados do perfil do usuário.
  */
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "Usuários", description = "Gerenciamento do perfil do usuário")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
@@ -28,7 +33,7 @@ public class UserController {
     }
 
     /**
-     * Retorna dados do perfil do usuário autenticado.
+     * Retorna os dados do perfil do usuário autenticado.
      */
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@AuthenticationPrincipal String userEmail) {
