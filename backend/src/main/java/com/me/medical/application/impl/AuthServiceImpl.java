@@ -28,9 +28,9 @@ public class AuthServiceImpl implements AuthService {
     private final PatientRepository patientRepository;
     private final RoleRepository roleRepository;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, 
-                          JwtTokenProvider tokenProvider, DoctorRepository doctorRepository,
-                          PatientRepository patientRepository, RoleRepository roleRepository) {
+        public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+            JwtTokenProvider tokenProvider, DoctorRepository doctorRepository,
+            PatientRepository patientRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
@@ -48,11 +48,14 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Credenciais inválidas");
         }
 
-        // Normaliza a role para o formato esperado pelo Spring Security (ex: ROLE_PATIENT)
+        // Normaliza a role para o formato esperado pelo Spring Security (ex:
+        // ROLE_PATIENT)
         String roleRaw = user.getRole() != null ? user.getRole().getName() : "PATIENT";
         String role = roleRaw.startsWith("ROLE_") ? roleRaw : ("ROLE_" + roleRaw);
-        // Usar email como 'sub' no JWT para que @AuthenticationPrincipal injete o email
-        String token = tokenProvider.createToken(user.getEmail(), role);
+        // Usar id do usuário (UUID) como 'sub' no JWT para que o principal
+        // disponível no SecurityContext seja o ID (compatível com controllers que
+        // fazem UUID.fromString(auth.getPrincipal())).
+        String token = tokenProvider.createToken(user.getId().toString(), role);
 
         // Buscar o nome do usuário baseado na role
         String name = user.getEmail(); // fallback para email se não encontrar nome
@@ -71,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
         // Montar resposta com token e dados do usuário
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
-        
+
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("id", user.getId().toString());
         userInfo.put("role", role);
@@ -83,7 +86,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Map<String, Object> register(String name, String email, String password, String role, String specialty, String phone) {
+    public Map<String, Object> register(String name, String email, String password, String role, String specialty,
+            String phone) {
         // Verificar se o email já está em uso
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("Email já está em uso");
@@ -91,10 +95,10 @@ public class AuthServiceImpl implements AuthService {
 
         // Normalizar role
         String normalizedRole = role.startsWith("ROLE_") ? role : ("ROLE_" + role);
-        
+
         // Buscar role no banco
         var roleEntity = roleRepository.findByName(normalizedRole)
-            .orElseThrow(() -> new RuntimeException("Role inválida: " + normalizedRole));
+                .orElseThrow(() -> new RuntimeException("Role inválida: " + normalizedRole));
 
         // Criar usuário
         JpaUserEntity user = new JpaUserEntity();
@@ -103,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setRole(roleEntity);
         user.setCreatedAt(OffsetDateTime.now());
-        
+
         user = userRepository.save(user);
 
         // Criar perfil específico baseado na role
@@ -125,12 +129,13 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Gerar token e retornar dados (login automático após registro)
-        // Usar email como 'sub' no JWT para consistência com o uso em controllers
-        String token = tokenProvider.createToken(email, normalizedRole);
+        // Usar id do usuário (UUID) como 'sub' no JWT para consistência com os
+        // controllers que esperam o ID no Authentication.getPrincipal().
+        String token = tokenProvider.createToken(user.getId().toString(), normalizedRole);
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
-        
+
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("id", user.getId().toString());
         userInfo.put("role", normalizedRole);
