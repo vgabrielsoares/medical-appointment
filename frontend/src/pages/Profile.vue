@@ -267,7 +267,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from "vue";
+import { defineComponent, ref, computed, onMounted, watch } from "vue";
 import {
   UserCircleIcon,
   PencilIcon,
@@ -276,6 +276,11 @@ import {
   KeyIcon,
 } from "@heroicons/vue/24/solid";
 import { UiCard, UiButton, UiInput, UiAvatar, UiBadge } from "../components/ui";
+import {
+  formatPhoneProgressive,
+  formatPhoneFinal,
+  sanitizeDigits,
+} from "../utils/formatters";
 import { useAuthStore } from "../stores/auth";
 import api from "../services/api";
 
@@ -430,10 +435,25 @@ export default defineComponent({
         if (auth.user) {
           profileForm.value.name = auth.user.name || "";
           profileForm.value.email = auth.user.email || "";
+          // alguns tipos de `user` não têm phone declarado — usar cast para evitar erro TS
+          profileForm.value.phone = ((auth.user as any).phone as string) || "";
         }
       } catch (error) {
         console.error("Erro ao carregar perfil:", error);
       }
+    };
+
+    // Formata o telefone progressivamente enquanto o usuário digita
+    watch(
+      () => profileForm.value.phone,
+      (newVal) => {
+        const formatted = formatPhoneProgressive(newVal || "");
+        if (formatted !== newVal) profileForm.value.phone = formatted;
+      }
+    );
+
+    const onPhoneBlur = () => {
+      profileForm.value.phone = formatPhoneFinal(profileForm.value.phone || "");
     };
 
     onMounted(() => {
@@ -453,6 +473,7 @@ export default defineComponent({
       cancelEditing,
       saveProfile,
       changePassword,
+      onPhoneBlur,
     };
   },
 });

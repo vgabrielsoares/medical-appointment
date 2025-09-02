@@ -215,6 +215,7 @@
               placeholder="(11) 99999-9999"
               :disabled="isLoading"
               @blur="formatPhoneInput"
+              maxlength="15"
             />
             <p
               v-if="form.phone && !isPhoneValid(form.phone)"
@@ -446,8 +447,10 @@ export default defineComponent({
     }
 
     // Handler progressivo para o input do telefone enquanto o usuário digita.
+    // Sanitiza e limita os dígitos imediatamente antes de aplicar a máscara.
     function onPhoneInput(val: string) {
-      form.value.phone = formatPhoneProgressive(val || "");
+      const digits = sanitizeDigits(val || "", undefined);
+      form.value.phone = formatPhoneProgressive(digits || "");
     }
 
     return {
