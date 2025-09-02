@@ -26,3 +26,8 @@ logging:
     root: INFO
     org.springframework.security: DEBUG
     com.me.medical: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.web.filter.CorsFilter: DEBUG
+    org.springframework.security.web: DEBUG
+    org.springframework.web.filter: TRACE
+    org.springframework.web.cors: TRACE
