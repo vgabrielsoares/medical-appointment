@@ -51,7 +51,8 @@ public class AuthServiceImpl implements AuthService {
         // Normaliza a role para o formato esperado pelo Spring Security (ex: ROLE_PATIENT)
         String roleRaw = user.getRole() != null ? user.getRole().getName() : "PATIENT";
         String role = roleRaw.startsWith("ROLE_") ? roleRaw : ("ROLE_" + roleRaw);
-        String token = tokenProvider.createToken(user.getId().toString(), role);
+        // Usar email como 'sub' no JWT para que @AuthenticationPrincipal injete o email
+        String token = tokenProvider.createToken(user.getEmail(), role);
 
         // Buscar o nome do usuário baseado na role
         String name = user.getEmail(); // fallback para email se não encontrar nome
@@ -124,7 +125,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Gerar token e retornar dados (login automático após registro)
-        String token = tokenProvider.createToken(user.getId().toString(), normalizedRole);
+        // Usar email como 'sub' no JWT para consistência com o uso em controllers
+        String token = tokenProvider.createToken(email, normalizedRole);
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
