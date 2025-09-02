@@ -4,6 +4,7 @@ export interface DoctorDTO {
   id: string;
   name: string;
   specialty?: string;
+  availableSlots?: number;
 }
 
 export async function listDoctors() {

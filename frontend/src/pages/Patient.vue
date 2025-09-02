@@ -83,7 +83,7 @@
                         Disponível
                       </UiBadge>
                       <span class="text-xs text-gray-500">
-                        {{ Math.floor(Math.random() * 10) + 5 }} horários
+                        {{ doctor.availableSlots || 0 }} horários
                       </span>
                     </div>
                   </div>
@@ -109,6 +109,88 @@
 
         <!-- Schedule Content -->
         <div class="lg:col-span-8">
+          <!-- My Appointments -->
+          <UiCard variant="elevated" size="lg" class="mb-6">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center"
+                  >
+                    <CalendarDaysIcon
+                      class="w-5 h-5 text-purple-600 dark:text-purple-400"
+                    />
+                  </div>
+                  <span>Meus Agendamentos</span>
+                </div>
+                <UiButton
+                  variant="ghost"
+                  size="sm"
+                  :icon="ArrowPathIcon"
+                  @click="loadMyAppointments"
+                  :loading="isLoadingAppointments"
+                >
+                  Atualizar
+                </UiButton>
+              </div>
+            </template>
+
+            <div v-if="myAppointments.length === 0" class="text-center py-8">
+              <CalendarDaysIcon class="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p class="text-gray-500 dark:text-gray-400">
+                Você ainda não tem agendamentos
+              </p>
+            </div>
+
+            <div v-else class="space-y-3">
+              <div
+                v-for="appointment in myAppointments"
+                :key="appointment.id"
+                class="p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4">
+                    <UiAvatar
+                      :name="appointment.doctorName || 'Médico'"
+                      size="md"
+                      status="online"
+                    />
+                    <div>
+                      <div class="font-medium text-gray-900 dark:text-white">
+                        Dr.
+                        {{ appointment.doctorName || "Nome não disponível" }}
+                      </div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">
+                        {{
+                          appointment.doctorSpecialty ||
+                          "Especialidade não informada"
+                        }}
+                      </div>
+                      <div
+                        class="text-sm text-gray-600 dark:text-gray-300 mt-1"
+                      >
+                        {{
+                          formatAppointmentDateTime(
+                            appointment.start,
+                            appointment.end
+                          )
+                        }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <UiBadge
+                      :variant="getAppointmentStatusVariant(appointment.status)"
+                      size="sm"
+                    >
+                      {{ getAppointmentStatusText(appointment.status) }}
+                    </UiBadge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </UiCard>
+
           <!-- No doctor selected state -->
           <div v-if="!selectedDoctor" class="text-center py-12">
             <UiCard variant="glass" size="lg">
@@ -194,7 +276,13 @@
                     </div>
                     <span>Horários Disponíveis</span>
                   </div>
-                  <UiButton variant="ghost" size="sm" :icon="ArrowPathIcon">
+                  <UiButton
+                    variant="ghost"
+                    size="sm"
+                    :icon="ArrowPathIcon"
+                    @click="refreshSlots"
+                    :loading="isRefreshingSlots"
+                  >
                     Atualizar
                   </UiButton>
                 </div>
@@ -232,7 +320,10 @@ import { defineComponent, ref, onMounted } from "vue";
 import SlotList from "../components/SlotList.vue";
 import { listDoctors } from "../services/doctors";
 import { listDoctorSlots } from "../services/slots";
-import { createAppointment } from "../services/appointments";
+import {
+  createAppointment,
+  listMyAppointments,
+} from "../services/appointments";
 import { useAuthStore } from "../stores/auth";
 import {
   UserIcon,
@@ -277,11 +368,26 @@ export default defineComponent({
     const selectedDoctor = ref<any | null>(null);
     const slots = ref([] as any[]);
     const error = ref("");
+    const isRefreshingSlots = ref(false);
+    const myAppointments = ref([] as any[]);
+    const isLoadingAppointments = ref(false);
 
     const loadDoctors = async () => {
       error.value = "";
       try {
-        doctors.value = await listDoctors();
+        const doctorsList = await listDoctors();
+        // Carregar o número de slots disponíveis para cada médico
+        for (const doctor of doctorsList) {
+          try {
+            const doctorSlots = await listDoctorSlots(doctor.id);
+            doctor.availableSlots = doctorSlots.filter(
+              (slot: any) => slot.status === "available"
+            ).length;
+          } catch (e) {
+            doctor.availableSlots = 0;
+          }
+        }
+        doctors.value = doctorsList;
       } catch (e: any) {
         error.value =
           e?.response?.data?.message ||
@@ -304,6 +410,100 @@ export default defineComponent({
           e?.response?.data?.message ||
           e.message ||
           "Erro ao carregar horários.";
+      }
+    };
+
+    const refreshSlots = async () => {
+      if (!selectedDoctor.value || isRefreshingSlots.value) return;
+
+      isRefreshingSlots.value = true;
+      try {
+        await loadSlots(selectedDoctor.value.id);
+        // Atualizar também o contador de slots do médico selecionado
+        const availableCount = slots.value.filter(
+          (slot: any) => slot.status === "available"
+        ).length;
+        if (selectedDoctor.value) {
+          selectedDoctor.value.availableSlots = availableCount;
+        }
+        // Atualizar na lista de médicos também
+        const doctorIndex = doctors.value.findIndex(
+          (d) => d.id === selectedDoctor.value.id
+        );
+        if (doctorIndex >= 0) {
+          doctors.value[doctorIndex].availableSlots = availableCount;
+        }
+      } catch (e: any) {
+        error.value =
+          e?.response?.data?.message ||
+          e.message ||
+          "Erro ao atualizar horários.";
+      } finally {
+        isRefreshingSlots.value = false;
+      }
+    };
+
+    const loadMyAppointments = async () => {
+      if (isLoadingAppointments.value) return;
+
+      isLoadingAppointments.value = true;
+      try {
+        myAppointments.value = await listMyAppointments();
+      } catch (e: any) {
+        console.error("Erro ao carregar agendamentos:", e);
+        // Não mostrar erro para agendamentos, apenas log
+      } finally {
+        isLoadingAppointments.value = false;
+      }
+    };
+
+    const formatAppointmentDateTime = (start: string, end: string) => {
+      if (!start || !end) return "Data não disponível";
+
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+
+      // Verificar se as datas são válidas
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return "Data inválida";
+      }
+
+      const dateStr = startDate.toLocaleDateString("pt-BR");
+      const startTime = startDate.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const endTime = endDate.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      return `${dateStr} às ${startTime} - ${endTime}`;
+    };
+
+    const getAppointmentStatusVariant = (status: string) => {
+      switch (status) {
+        case "confirmed":
+          return "success";
+        case "pending":
+          return "warning";
+        case "cancelled":
+          return "danger";
+        default:
+          return "info";
+      }
+    };
+
+    const getAppointmentStatusText = (status: string) => {
+      switch (status) {
+        case "confirmed":
+          return "Confirmado";
+        case "pending":
+          return "Pendente";
+        case "cancelled":
+          return "Cancelado";
+        default:
+          return "Agendado";
       }
     };
 
@@ -345,6 +545,7 @@ export default defineComponent({
 
     onMounted(() => {
       loadDoctors();
+      loadMyAppointments();
     });
 
     return {
@@ -352,8 +553,16 @@ export default defineComponent({
       selectedDoctor,
       slots,
       error,
+      isRefreshingSlots,
+      myAppointments,
+      isLoadingAppointments,
       selectDoctor,
       bookSlot,
+      refreshSlots,
+      loadMyAppointments,
+      formatAppointmentDateTime,
+      getAppointmentStatusVariant,
+      getAppointmentStatusText,
       CheckCircleIcon,
       ArrowPathIcon,
     };

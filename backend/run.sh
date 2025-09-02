@@ -16,8 +16,18 @@ set -euo pipefail
 : "${SPRING_PROFILE:=dev}"
 
 # Se não existir JWT_SECRET, gera um temporário para dev
+# Se não existir JWT_SECRET, tenta carregar de arquivo persistente .jwt_secret
+# Isso evita invalidar tokens toda vez que o backend for reiniciado em dev.
 if [ -z "${JWT_SECRET:-}" ]; then
-  export JWT_SECRET="$(openssl rand -hex 32)"
+  if [ -f ".jwt_secret" ]; then
+    export JWT_SECRET="$(cat .jwt_secret)"
+  else
+    # gerar e salvar em .jwt_secret
+    JWT_SECRET_GENERATED="$(openssl rand -hex 32)"
+    echo "$JWT_SECRET_GENERATED" > .jwt_secret
+    chmod 600 .jwt_secret || true
+    export JWT_SECRET="$JWT_SECRET_GENERATED"
+  fi
 fi
 
 echo "Running backend with:" \

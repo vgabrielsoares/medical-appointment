@@ -1,5 +1,6 @@
 package com.me.medical.infra;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -23,6 +24,12 @@ public class JpaPatientEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column
+    private String phone;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
@@ -34,6 +41,10 @@ public class JpaPatientEntity {
     public void setUser(JpaUserEntity user) { this.user = user; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public LocalDate getBirthDate() { return birthDate; }
+    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
 }

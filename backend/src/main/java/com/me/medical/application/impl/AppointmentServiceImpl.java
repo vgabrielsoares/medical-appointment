@@ -97,6 +97,19 @@ public class AppointmentServiceImpl implements AppointmentService {
         d.setPatientId(e.getPatient() != null ? e.getPatient().getId() : null);
         d.setStatus(e.getStatus());
         d.setCreatedAt(e.getCreatedAt());
+        
+        // Enriquecer com dados do médico
+        if (e.getDoctor() != null) {
+            d.setDoctorName(e.getDoctor().getName());
+            d.setDoctorSpecialty(e.getDoctor().getSpecialty());
+        }
+        
+        // Enriquecer com dados do slot (horários)
+        if (e.getSlot() != null) {
+            d.setStart(e.getSlot().getStartTime());
+            d.setEnd(e.getSlot().getEndTime());
+        }
+        
         return d;
     }
 }

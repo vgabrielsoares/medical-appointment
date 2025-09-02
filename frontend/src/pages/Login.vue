@@ -143,7 +143,17 @@
       </UiCard>
 
       <!-- Back to Home -->
-      <div class="text-center mt-6">
+      <div class="text-center mt-6 space-y-3">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Não tem uma conta?
+          <router-link
+            to="/register"
+            class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            Registre-se
+          </router-link>
+        </p>
+
         <router-link
           to="/"
           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
