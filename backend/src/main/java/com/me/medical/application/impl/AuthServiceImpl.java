@@ -40,6 +40,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    /**
+     * Autentica o usuário usando email + senha e retorna um mapa contendo o
+     * token JWT e informações básicas do usuário.
+     *
+     * Retorna:
+     * { token: string, user: { id, role, name, email } }
+     *
+     * @throws RuntimeException em credenciais inválidas
+     */
     public Map<String, Object> login(String email, String password) {
         Optional<JpaUserEntity> userOpt = userRepository.findByEmail(email);
         var user = userOpt.orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
@@ -86,6 +95,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    /**
+     * Registra um novo usuário (seed/registro simplificado).
+     * Cria também o perfil associado (doctor ou patient) e retorna token + user info.
+     *
+     * Observação: neste desafio usamos seed/registro simplificado; em produção o fluxo
+     * deveria validar e confirmar email, entre outros cuidados.
+     */
     public Map<String, Object> register(String name, String email, String password, String role, String specialty,
             String phone) {
         // Verificar se o email já está em uso

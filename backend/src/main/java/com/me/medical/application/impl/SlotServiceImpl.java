@@ -34,6 +34,20 @@ public class SlotServiceImpl implements SlotService {
 
     @Override
     @Transactional
+    /**
+     * Cria um novo slot para o médico informado.
+     *
+     * Pré-condições:
+     * - start e end não nulos e start < end
+     * - doctorId existe
+     * - não deve haver sobreposição com outros slots do mesmo médico
+     *
+     * Pós-condições:
+     * - slot persistido com status 'available' por padrão
+     *
+     * @throws IllegalArgumentException validações de entrada ou metadata inválida
+     * @throws SlotOverlapException se existir sobreposição
+     */
     public SlotDto createSlot(UUID doctorId, SlotDto dto) {
         validateTimes(dto.getStart(), dto.getEnd());
 
@@ -71,6 +85,14 @@ public class SlotServiceImpl implements SlotService {
 
     @Override
     @Transactional
+    /**
+     * Atualiza um slot existente pertencente ao médico.
+     * Valida interseção com outros slots (exclui o próprio slot na checagem).
+     *
+     * @throws IllegalArgumentException se slot não existir
+     * @throws SecurityException se o médico não for o proprietário
+     * @throws SlotOverlapException se houver sobreposição
+     */
     public SlotDto updateSlot(UUID doctorId, UUID slotId, SlotDto dto) {
         validateTimes(dto.getStart(), dto.getEnd());
 
@@ -104,6 +126,10 @@ public class SlotServiceImpl implements SlotService {
 
     @Override
     @Transactional
+    /**
+     * Deleta um slot do médico.
+     * Lança SecurityException se o médico autenticado não for o dono do slot.
+     */
     public void deleteSlot(UUID doctorId, UUID slotId) {
         var entity = slotRepository.findById(slotId)
             .orElseThrow(() -> new IllegalArgumentException("slot not found"));
@@ -116,10 +142,6 @@ public class SlotServiceImpl implements SlotService {
     private void validateTimes(OffsetDateTime start, OffsetDateTime end) {
         if (start == null || end == null) throw new IllegalArgumentException("start and end required");
         if (!start.isBefore(end)) throw new IllegalArgumentException("start must be before end");
-    }
-
-    private boolean overlaps(OffsetDateTime aStart, OffsetDateTime aEnd, OffsetDateTime bStart, OffsetDateTime bEnd) {
-        return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
     }
 
     private SlotDto toDto(JpaSlotEntity e) {

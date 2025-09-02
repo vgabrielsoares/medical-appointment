@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,19 +39,6 @@ public class SlotController {
         this.doctorRepository = doctorRepository;
     }
 
-    private UUID authUserId(Authentication auth) {
-        if (auth == null) return null;
-        try { return UUID.fromString((String) auth.getPrincipal()); }
-        catch (Exception e) { return null; }
-    }
-
-    private boolean isDoctor(Authentication auth) {
-        if (auth == null) return false;
-        for (GrantedAuthority ga : auth.getAuthorities()) {
-            if ("ROLE_DOCTOR".equals(ga.getAuthority())) return true;
-        }
-        return false;
-    }
 
     @PostMapping
     public ResponseEntity<?> create(@PathVariable UUID doctorId, @RequestBody SlotDto dto, Authentication auth) {
@@ -69,8 +55,8 @@ public class SlotController {
     public ResponseEntity<List<SlotDto>> list(@PathVariable UUID doctorId, Authentication auth) {
         // listagem dos slots do médico é permitida por ele
         // médicos donos veem todos os slots, pacientes e público veem somente slots disponíveis
-        if (isDoctor(auth)) {
-            var userId = authUserId(auth);
+        if (AuthUtils.isDoctor(auth)) {
+            var userId = AuthUtils.authUserId(auth);
             if (userId != null) {
                 var doctor = doctorRepository.findById(doctorId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "doctor not found"));
@@ -107,8 +93,8 @@ public class SlotController {
     }
 
     private void requireDoctorAndOwner(Authentication auth, UUID doctorId) {
-        if (!isDoctor(auth)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "requires ROLE_DOCTOR");
-        var userId = authUserId(auth);
+        if (!AuthUtils.isDoctor(auth)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "requires ROLE_DOCTOR");
+        var userId = AuthUtils.authUserId(auth);
         if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid principal");
 
         var doctor = doctorRepository.findById(doctorId)

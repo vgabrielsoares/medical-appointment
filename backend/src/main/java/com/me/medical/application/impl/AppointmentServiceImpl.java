@@ -48,6 +48,24 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
+    /**
+     * Cria um agendamento (reserva) para o slot informado.
+     *
+     * Implementação transacional que utiliza lock pessimista no registro do slot
+     * (SELECT FOR UPDATE) para prevenir race conditions entre clientes concorrentes.
+     *
+     * Pré-condições:
+     * - slot existe e pertence ao doctorId
+     * - slot.status == 'available'
+     * - doctor e patient existem
+     *
+     * Pós-condições:
+     * - slot.status setado para 'booked'
+     * - appointment persistido com status 'confirmed'
+     *
+     * @throws IllegalArgumentException quando recursos não existem ou não pertencem
+     * @throws IllegalStateException quando slot não está disponível
+     */
     public AppointmentDto createAppointment(UUID doctorId, UUID slotId, UUID patientId) {
         // busca slot com lock pessimista para prevenir reservas concorrentes
         var slot = entityManager.find(JpaSlotEntity.class, slotId, LockModeType.PESSIMISTIC_WRITE);
