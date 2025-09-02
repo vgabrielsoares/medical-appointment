@@ -10,3 +10,5 @@
 
 # Runtime
 /run.log
+
+.jwt_secret
