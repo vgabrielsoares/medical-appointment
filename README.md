@@ -156,6 +156,40 @@ O backend inclui um `DataSeeder` que cria automaticamente usuários para desenvo
 
 > 📝 **Nota**: Todas as rotas protegidas requerem header `Authorization: Bearer <token>`
 
+## Documentação da API (Swagger/OpenAPI)
+
+### Acessar a Documentação Interativa
+
+O sistema inclui documentação automática da API via Swagger UI:
+
+- **Swagger UI:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **OpenAPI JSON:** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+### Como Testar com Autenticação
+
+1. **Fazer login** no endpoint `/api/auth/login` com as credenciais seed:
+
+   - **Médico:** `doctor@example.com` / `doctorpass`
+   - **Paciente:** `patient@example.com` / `patientpass`
+
+2. **Copiar o token** da resposta JSON
+
+3. **Autorizar no Swagger UI:**
+
+   - Clicar no botão **"Authorize"** (🔒)
+   - Inserir: `Bearer {seu-token-aqui}`
+   - Clicar em **"Authorize"**
+
+4. **Testar endpoints** protegidos diretamente na interface
+
+### Recursos da Documentação
+
+- **Exemplos práticos** baseados nos dados dos seeders
+- **Esquemas detalhados** de request/response com validações
+- **Agrupamento lógico** por funcionalidade (Autenticação, Slots, Agendamentos)
+- **Autenticação JWT** integrada para testes diretos
+- **Responses padronizadas** para erros comuns (401, 403, 404, etc.)
+
 ## Arquitetura e Decisões Técnicas
 
 ### Backend (Clean Architecture)

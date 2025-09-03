@@ -13,11 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.me.medical.infra.DoctorRepository;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Endpoint público (read-only) para listar médicos existentes.
  */
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Médicos", description = "Consulta de informações dos médicos")
 public class DoctorController {
     private final DoctorRepository doctorRepository;
 
@@ -25,12 +29,19 @@ public class DoctorController {
         this.doctorRepository = doctorRepository;
     }
 
+    /**
+     * Dados básicos de um médico para listagem pública.
+     */
     public static class DoctorDto {
         public UUID id;
         public String name;
         public String specialty;
     }
 
+    /**
+     * Retorna a lista de todos os médicos cadastrados no sistema.
+     * Endpoint público.
+     */
     @GetMapping("/doctors")
     public ResponseEntity<List<DoctorDto>> list() {
         var list = doctorRepository.findAll().stream().map(e -> {
@@ -44,6 +55,11 @@ public class DoctorController {
         return ResponseEntity.ok(list);
     }
 
+    /**
+     * Retorna os dados do médico autenticado atualmente.
+     * Apenas médicos podem acessar.
+     */
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/doctors/me")
     public ResponseEntity<DoctorDto> me(Authentication auth) {
         if (auth == null) return ResponseEntity.status(401).build();

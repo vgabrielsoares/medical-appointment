@@ -20,3 +20,13 @@ server:
 jwt:
   secret: ${JWT_SECRET:mudar-em-dev}
   expiration-ms: 3600000 # 1 hora
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+  show-actuator: false

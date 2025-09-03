@@ -36,6 +36,19 @@ Exemplo de caminho de classes
 - Tratamento de erros: responses JSON simples { "message": "..." } e status HTTP semântico.
 - Concorrência/atomicidade: regras críticas (ex.: reservar slot) devem usar transação e
   SELECT FOR UPDATE ou constraints únicas no banco (unique on `slot_id` em appointments).
+- Lombok: Utilizado para reduzir boilerplate em DTOs, entidades JPA e classes de domínio.
+  Principais anotações: `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`.
+
+### Sobre o Lombok
+
+O projeto utiliza Lombok para eliminar código boilerplate em:
+
+- **DTOs** (`LoginRequest`, `SlotDto`, `AppointmentDto`, etc.): Usa `@Getter`, `@Setter`, `@NoArgsConstructor`
+- **Entidades JPA** (`JpaUserEntity`, `JpaSlotEntity`, etc.): Usa `@Getter`, `@Setter`, `@NoArgsConstructor`
+- **Classes de Domínio** (`User`, `Doctor`, `Patient`): Usa `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`
+- **Classes de Configuração** (`JwtProperties`): Usa `@Getter`, `@Setter`
+
+> Nota: Lombok é processado em tempo de compilação, então o JAR final não tem dependência de Lombok em runtime. IDEs podem mostrar erros até configuração adequada do annotation processor, mas `mvn compile` funciona normalmente.
 
 ## Como compilar e executar (rápido)
 
