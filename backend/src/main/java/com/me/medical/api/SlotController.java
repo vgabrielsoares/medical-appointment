@@ -22,16 +22,19 @@ import com.me.medical.application.SlotService;
 import com.me.medical.application.dto.SlotDto;
 import com.me.medical.infra.DoctorRepository;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Controller REST para CRUD de slots. Somente médicos podem gerenciar seus slots.
  */
 @RestController
 @RequestMapping("/api/doctors/{doctorId}/slots")
+@Tag(name = "Slots", description = "Gerenciamento de horários disponíveis dos médicos")
+@SecurityRequirement(name = "bearerAuth")
 public class SlotController {
     private final SlotService slotService;
-
     private final DoctorRepository doctorRepository;
-
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SlotController.class);
 
     public SlotController(SlotService slotService, DoctorRepository doctorRepository) {
@@ -39,7 +42,10 @@ public class SlotController {
         this.doctorRepository = doctorRepository;
     }
 
-
+    /**
+     * Cria um novo slot/horário disponível para o médico.
+     * Apenas o próprio médico pode criar seus slots.
+     */
     @PostMapping
     public ResponseEntity<?> create(@PathVariable UUID doctorId, @RequestBody SlotDto dto, Authentication auth) {
         requireDoctorAndOwner(auth, doctorId);
@@ -51,6 +57,10 @@ public class SlotController {
         }
     }
 
+    /**
+     * Lista os slots do médico.
+     * Médicos proprietários veem todos os slots, outros usuários veem apenas slots disponíveis.
+     */
     @GetMapping
     public ResponseEntity<List<SlotDto>> list(@PathVariable UUID doctorId, Authentication auth) {
         // listagem dos slots do médico é permitida por ele
@@ -74,6 +84,10 @@ public class SlotController {
         return ResponseEntity.ok(available);
     }
 
+    /**
+     * Atualiza um slot existente do médico.
+     * Apenas o próprio médico pode atualizar seus slots.
+     */
     @PutMapping("/{slotId}")
     public ResponseEntity<?> update(@PathVariable UUID doctorId, @PathVariable UUID slotId, @RequestBody SlotDto dto, Authentication auth) {
         requireDoctorAndOwner(auth, doctorId);
@@ -85,6 +99,10 @@ public class SlotController {
         }
     }
 
+    /**
+     * Remove um slot do médico.
+     * Apenas o próprio médico pode deletar seus slots.
+     */
     @DeleteMapping("/{slotId}")
     public ResponseEntity<?> delete(@PathVariable UUID doctorId, @PathVariable UUID slotId, Authentication auth) {
         requireDoctorAndOwner(auth, doctorId);

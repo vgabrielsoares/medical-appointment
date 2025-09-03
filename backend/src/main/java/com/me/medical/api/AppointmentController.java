@@ -19,11 +19,16 @@ import com.me.medical.application.dto.AppointmentDto;
 import com.me.medical.application.dto.CreateAppointmentRequest;
 import com.me.medical.infra.PatientRepository;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Controller para criação de agendamentos e listagem de agendamentos do paciente.
  */
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Agendamentos", description = "Criação e listagem de agendamentos")
+@SecurityRequirement(name = "bearerAuth")
 public class AppointmentController {
     private final AppointmentService appointmentService;
     private final PatientRepository patientRepository;
@@ -34,7 +39,10 @@ public class AppointmentController {
         this.patientRepository = patientRepository;
     }
 
-
+    /**
+     * Cria um novo agendamento para o paciente autenticado.
+     * O paciente só pode criar agendamentos para si mesmo.
+     */
     @PostMapping("/appointments")
     public ResponseEntity<?> create(@RequestBody CreateAppointmentRequest req, Authentication auth) {
         // paciente apenas pode criar agendamento para si mesmo (patientId do token)
@@ -67,6 +75,9 @@ public class AppointmentController {
         }
     }
 
+    /**
+     * Lista todos os agendamentos do paciente autenticado.
+     */
     @GetMapping("/appointments/my")
     public ResponseEntity<List<AppointmentDto>> listMyAppointments(Authentication auth) {
         if (!AuthUtils.isPatient(auth)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "requires ROLE_PATIENT");
@@ -85,6 +96,9 @@ public class AppointmentController {
         return ResponseEntity.ok(list);
     }
 
+    /**
+     * Lista agendamentos de um paciente específico (apenas o próprio paciente pode acessar).
+     */
     @GetMapping("/patients/{patientId}/appointments")
     public ResponseEntity<List<AppointmentDto>> listByPatient(@PathVariable UUID patientId, Authentication auth) {
         // pacientes só podem listar seus próprios agendamentos
