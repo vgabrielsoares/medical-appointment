@@ -1,27 +1,20 @@
 package com.me.medical.domain;
 
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entidade de domínio representando um paciente.
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Patient {
     private UUID id;
     private UUID userId;
     private String name;
-
-    public Patient() {}
-
-    public Patient(UUID id, UUID userId, String name) {
-        this.id = id;
-        this.userId = userId;
-        this.name = name;
-    }
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-    public UUID getUserId() { return userId; }
-    public void setUserId(UUID userId) { this.userId = userId; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
 }
