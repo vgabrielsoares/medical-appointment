@@ -21,13 +21,22 @@ export interface AuthUser {
  * A store mantém o token em localStorage para persistência simples entre reloads.
  */
 export const useAuthStore = defineStore("auth", {
-  state: () => ({
-    token: (localStorage.getItem("ma_token") || "") as string,
-    user:
-      (JSON.parse(
-        localStorage.getItem("ma_user") || "null"
-      ) as AuthUser | null) || null,
-  }),
+  state: () => {
+    let user: AuthUser | null = null;
+    try {
+      const userStr = localStorage.getItem("ma_user");
+      user = userStr ? JSON.parse(userStr) : null;
+    } catch (e) {
+      console.warn("Failed to parse user from localStorage:", e);
+      localStorage.removeItem("ma_user");
+      user = null;
+    }
+
+    return {
+      token: (localStorage.getItem("ma_token") || "") as string,
+      user,
+    };
+  },
   getters: {
     isAuthenticated: (state) => !!state.token,
     getUser: (state) => state.user,
