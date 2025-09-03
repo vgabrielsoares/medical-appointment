@@ -9,6 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entidade JPA representando o slot de disponibilidade de um médico.
@@ -17,6 +20,9 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "slots")
+@Getter
+@Setter
+@NoArgsConstructor
 public class JpaSlotEntity {
     @Id
     private UUID id;
@@ -40,27 +46,4 @@ public class JpaSlotEntity {
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
-
-    public JpaSlotEntity() {}
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public JpaDoctorEntity getDoctor() { return doctor; }
-    public void setDoctor(JpaDoctorEntity doctor) { this.doctor = doctor; }
-
-    public OffsetDateTime getStartTime() { return startTime; }
-    public void setStartTime(OffsetDateTime startTime) { this.startTime = startTime; }
-
-    public OffsetDateTime getEndTime() { return endTime; }
-    public void setEndTime(OffsetDateTime endTime) { this.endTime = endTime; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public String getMetadata() { return metadata; }
-    public void setMetadata(String metadata) { this.metadata = metadata; }
-
-    public OffsetDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
 }

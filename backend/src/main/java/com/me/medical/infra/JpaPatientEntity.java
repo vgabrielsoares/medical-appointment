@@ -10,9 +10,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "patients")
+@Getter
+@Setter
+@NoArgsConstructor
 public class JpaPatientEntity {
     @Id
     private UUID id;
@@ -32,19 +38,4 @@ public class JpaPatientEntity {
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
-
-    public JpaPatientEntity() {}
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-    public JpaUserEntity getUser() { return user; }
-    public void setUser(JpaUserEntity user) { this.user = user; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-    public LocalDate getBirthDate() { return birthDate; }
-    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
-    public OffsetDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
 }

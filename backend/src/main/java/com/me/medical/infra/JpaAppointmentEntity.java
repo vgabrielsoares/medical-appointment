@@ -9,6 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entidade JPA representando um agendamento (appointment).
@@ -17,6 +20,9 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "appointments")
+@Getter
+@Setter
+@NoArgsConstructor
 public class JpaAppointmentEntity {
     @Id
     private UUID id;
@@ -38,24 +44,4 @@ public class JpaAppointmentEntity {
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
-
-    public JpaAppointmentEntity() {}
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public JpaSlotEntity getSlot() { return slot; }
-    public void setSlot(JpaSlotEntity slot) { this.slot = slot; }
-
-    public JpaDoctorEntity getDoctor() { return doctor; }
-    public void setDoctor(JpaDoctorEntity doctor) { this.doctor = doctor; }
-
-    public JpaPatientEntity getPatient() { return patient; }
-    public void setPatient(JpaPatientEntity patient) { this.patient = patient; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public OffsetDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
 }
