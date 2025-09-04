@@ -149,6 +149,33 @@ O backend inclui um `DataSeeder` que cria automaticamente usuários para desenvo
 **POST** `/api/appointments` - Criar agendamento (ROLE_PATIENT)
 
 - Body: `{ "doctorId": "uuid", "slotId": "uuid" }`
+- Response: `{ "id": "uuid", "doctor": {...}, "slot": {...}, "patient": {...} }`
+
+**GET** `/api/patients/{patientId}/appointments` - Listar agendamentos do paciente
+
+### Monitoramento e Health Checks
+
+**GET** `/actuator/health` - Status de saúde da aplicação
+
+- Response: `{ "status": "UP", "components": { "db": {...}, "diskSpace": {...} } }`
+
+**GET** `/actuator/info` - Informações da aplicação
+
+- Response: Detalhes da build, JVM, SO e configurações
+
+**GET** `/actuator/metrics` - Lista de métricas disponíveis
+
+**GET** `/actuator/metrics/{metricName}` - Métrica específica
+
+- Exemplos: `jvm.memory.used`, `hikaricp.connections.active`, `http.server.requests`
+
+### Documentação API
+
+**GET** `/swagger-ui.html` - Interface Swagger UI
+
+**GET** `/v3/api-docs` - Especificação OpenAPI JSON
+
+- Body: `{ "doctorId": "uuid", "slotId": "uuid" }`
 
 **GET** `/api/appointments/my` - Listar agendamentos do paciente (ROLE_PATIENT)
 
@@ -370,9 +397,11 @@ npm run build
 
 2. **Observabilidade**:
 
+   - Health checks detalhados (Spring Actuator)
+   - Métricas de performance (JVM, HTTP, DB)
+   - Informações de runtime e build
+   - Endpoints de monitoramento (/actuator/\*)
    - Logging estruturado
-   - Métricas de performance
-   - Health checks detalhados
    - Monitoramento de erros
 
 3. **Escalabilidade**:
