@@ -417,6 +417,32 @@ npm run build
    - Progressive Web App (PWA)
    - Offline support básico
 
+## CI/CD
+
+O projeto inclui pipeline de Continuous Integration via GitHub Actions que:
+
+### Pipeline de CI (`.github/workflows/ci.yml`)
+
+- **Backend**: Compila e executa testes Java com PostgreSQL
+- **Frontend**: Builda e testa aplicação Vue.js
+- **Quality**: Verifica qualidade de código e build final
+
+### Execução Local dos Testes
+
+**Backend:**
+
+```bash
+cd backend
+mvn test -Dspring.profiles.active=test
+```
+
+**Frontend:**
+
+```bash
+cd frontend
+npm run test -- --run
+```
+
 ## Suporte e Documentação
 
 <!-- - **API Documentation**: Disponível via Swagger UI em `/swagger-ui.html` -->
