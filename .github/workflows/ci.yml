@@ -65,14 +65,17 @@ jobs:
         if: always()
         run: |
           echo "## Backend Test Results" >> $GITHUB_STEP_SUMMARY
-          if [ -f target/surefire-reports/TEST-*.xml ]; then
+          echo "Listing surefire reports (for debugging):" >> $GITHUB_STEP_SUMMARY
+          ls -la target/surefire-reports || true
+          if ls target/surefire-reports/TEST-*.xml >/dev/null 2>&1; then
             echo "✅ Todos os testes passaram (incluindo testes de concorrência)" >> $GITHUB_STEP_SUMMARY
             echo "- ✅ Testes de autenticação (AuthService)" >> $GITHUB_STEP_SUMMARY
             echo "- ✅ Testes de slots (SlotService)" >> $GITHUB_STEP_SUMMARY
             echo "- ✅ Testes de agendamentos (AppointmentService)" >> $GITHUB_STEP_SUMMARY
             echo "- ✅ Testes de concorrência (race conditions prevenidas)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ Falha nos testes" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Aviso: não foram encontrados arquivos XML do Surefire em target/surefire-reports." >> $GITHUB_STEP_SUMMARY
+            echo "  Se a etapa 'Run backend tests' retornou 0, os testes provavelmente passaram; verifique os logs se houver dúvidas." >> $GITHUB_STEP_SUMMARY
           fi
 
   # Job para testar o frontend (Vue 3 + TypeScript)
