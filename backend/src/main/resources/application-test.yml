@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+  h2:
+    console:
+      enabled: false
+
+flyway:
+  enabled: false # Desabilita Flyway nos testes (usando ddl-auto: create-drop)
+
+jwt:
+  secret: test-secret-key-for-ci-only
+  expiration-ms: 3600000
+
+logging:
+  level:
+    com.me.medical: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: INFO

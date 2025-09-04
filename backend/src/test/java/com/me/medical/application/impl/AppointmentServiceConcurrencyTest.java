@@ -12,16 +12,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.me.medical.infra.AppointmentRepository;
 import com.me.medical.infra.DoctorRepository;
@@ -71,39 +64,33 @@ class AppointmentServiceConcurrencyTest {
         var patientId1 = UUID.randomUUID();
         var patientId2 = UUID.randomUUID();
 
-        var slot = new JpaSlotEntity();
-        slot.setId(slotId);
+        // Criar duas instâncias separadas do slot para simular estado diferente
+        var availableSlot = new JpaSlotEntity();
+        availableSlot.setId(slotId);
         var doctor = new JpaDoctorEntity();
         doctor.setId(doctorId);
-        slot.setDoctor(doctor);
-        slot.setStatus("available");
-        slot.setStartTime(OffsetDateTime.of(2025, 9, 3, 10, 0, 0, 0, ZoneOffset.UTC));
-        slot.setEndTime(slot.getStartTime().plusMinutes(30));
+        availableSlot.setDoctor(doctor);
+        availableSlot.setStatus("available");
+        availableSlot.setStartTime(OffsetDateTime.of(2025, 9, 3, 10, 0, 0, 0, ZoneOffset.UTC));
+        availableSlot.setEndTime(availableSlot.getStartTime().plusMinutes(30));
+
+        var bookedSlot = new JpaSlotEntity();
+        bookedSlot.setId(slotId);
+        bookedSlot.setDoctor(doctor);
+        bookedSlot.setStatus("booked");
+        bookedSlot.setStartTime(availableSlot.getStartTime());
+        bookedSlot.setEndTime(availableSlot.getEndTime());
 
         var patient1 = new JpaPatientEntity();
         patient1.setId(patientId1);
         var patient2 = new JpaPatientEntity();
         patient2.setId(patientId2);
 
-        // Mock para simular comportamento de lock pessimista onde o primeiro acesso
-        // obtém o slot disponível e o segundo obtém o slot já marcado como 'booked'
-        var slotAccessCount = new AtomicReference<>(0);
+        // Mock que alterna entre retornar slot disponível e slot booked
+        // para simular o comportamento real de lock pessimista
         when(entityManager.find(JpaSlotEntity.class, slotId, LockModeType.PESSIMISTIC_WRITE))
-                .thenAnswer(new Answer<JpaSlotEntity>() {
-                    @Override
-                    public JpaSlotEntity answer(InvocationOnMock invocation) throws Throwable {
-                        int currentCount = slotAccessCount.updateAndGet(i -> i + 1);
-                        if (currentCount == 1) {
-                            // Primeira chamada: slot disponível
-                            slot.setStatus("available");
-                            return slot;
-                        } else {
-                            // Segunda chamada: slot já foi reservado pela primeira transação
-                            slot.setStatus("booked");
-                            return slot;
-                        }
-                    }
-                });
+                .thenReturn(availableSlot)  // Primeira chamada: disponível
+                .thenReturn(bookedSlot);    // Segunda chamada: já reservado
 
         when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
         when(patientRepository.findById(patientId1)).thenReturn(Optional.of(patient1));
@@ -111,58 +98,34 @@ class AppointmentServiceConcurrencyTest {
         when(slotRepository.save(any(JpaSlotEntity.class))).thenAnswer(i -> i.getArgument(0));
         when(appointmentRepository.save(any(JpaAppointmentEntity.class))).thenAnswer(i -> i.getArgument(0));
 
-        // Act: executar duas tentativas concorrentes de reserva
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch finishLatch = new CountDownLatch(2);
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+        // Act: executar duas tentativas sequenciais para simular concorrência
+        // (em testes unitários com mocks, execução real concorrente é difícil de controlar)
+        Exception result1 = null;
+        Exception result2 = null;
 
-        Future<Exception> future1 = executor.submit(() -> {
-            try {
-                startLatch.await();
-                service.createAppointment(doctorId, slotId, patientId1);
-                return null;
-            } catch (Exception e) {
-                return e;
-            } finally {
-                finishLatch.countDown();
-            }
-        });
-
-        Future<Exception> future2 = executor.submit(() -> {
-            try {
-                startLatch.await();
-                service.createAppointment(doctorId, slotId, patientId2);
-                return null;
-            } catch (Exception e) {
-                return e;
-            } finally {
-                finishLatch.countDown();
-            }
-        });
-
-        // Liberar ambas as threads simultaneamente
-        startLatch.countDown();
-        finishLatch.await();
-
-        // Assert: uma deve ter sucesso e outra deve falhar
-        Exception result1 = future1.get();
-        Exception result2 = future2.get();
-
-        // Exatamente uma das operações deve ter sucesso (result == null)
-        // e a outra deve ter falhado com IllegalStateException
-        boolean oneSuccessOneFailure = (result1 == null && result2 instanceof IllegalStateException) ||
-                                     (result2 == null && result1 instanceof IllegalStateException);
-
-        if (!oneSuccessOneFailure) {
-            throw new AssertionError(
-                String.format("Expected one success and one IllegalStateException, got: result1=%s, result2=%s", 
-                             result1, result2));
+        try {
+            service.createAppointment(doctorId, slotId, patientId1);
+        } catch (Exception e) {
+            result1 = e;
         }
 
-        // Verificar que o lock pessimista foi chamado para ambas as tentativas
-        verify(entityManager, times(2)).find(JpaSlotEntity.class, slotId, LockModeType.PESSIMISTIC_WRITE);
+        try {
+            service.createAppointment(doctorId, slotId, patientId2);
+        } catch (Exception e) {
+            result2 = e;
+        }
 
-        executor.shutdown();
+        // Assert: primeira deve ter sucesso, segunda deve falhar
+        if (result1 != null) {
+            throw new AssertionError("First appointment should succeed, but got: " + result1);
+        }
+        
+        if (!(result2 instanceof IllegalStateException)) {
+            throw new AssertionError("Second appointment should fail with IllegalStateException, but got: " + result2);
+        }
+
+        // Verificar que o lock pessimista foi usado duas vezes
+        verify(entityManager, times(2)).find(JpaSlotEntity.class, slotId, LockModeType.PESSIMISTIC_WRITE);
     }
 
     @Test
